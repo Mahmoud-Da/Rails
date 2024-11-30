@@ -1,0 +1,17 @@
+*** 1- Introduction to Section 3 and Ruby on Rails kickoff ***
+- Ruby on Rails or Rails for short is a web application development framework, which you can use to develop
+web applications from simple ones to highly complex enterprise level ones.
+
+useful sites:
+- Rails overview:
+https://guides.rubyonrails.org/
+https://rubyonrails.org/
+https://weblog.rubyonrails.org/
+
+- Gems for Ruby and Ruby on Rails:
+https://rubygems.org/
+
+- to create rails application rails new "app-name"
+-------------------code----------------------
+rails new rails-app
+-------------------code----------------------
