@@ -15,3 +15,429 @@ https://rubygems.org/
 -------------------code----------------------
 rails new rails-app
 -------------------code----------------------
+
+- to run the rails server 
+1- using server 
+-------------------code----------------------
+rails server
+-------------------code----------------------
+
+2- using s
+-------------------code----------------------
+rails s
+-------------------code----------------------
+
+
+*** 2- Model, View, Controller and Rails App Structure ***
+
+MVC: separation of presentation layer and the invisible layer 
+presentation layer: what the user if the application sees in the browser/mobile (front-end)
+invisible layer: the business-logic (back-end)
+MVC: Model, view , controller
+      
+***************************************************************************  
+      Request
+       ----------------------->    (handle Request process)
+User                            Controller
+       <---------------------- /           \
+      Responses               /             \  result of business logic
+                             /               \
+                        
+(Handle what the user see) View               Model (handle business logic)
+                      (HTML/CSS/JS)           |                                             
+                                              |    
+                                             DB
+***************************************************************************
+
+Model is a crucial component of the MVC (Model-View-Controller) architecture. 
+It represents the data and the business logic of the application. 
+key points about Models in Rails:
+1- Data Representation: Models are used to represent the data structure of your application. 
+Each model typically corresponds to a table in the database, where each instance of the model represents a row in that table.
+
+2- Active Record: Rails uses a library called Active Record to handle database interactions. 
+This means that models in Rails are not just plain Ruby classes; they inherit from "ActiveRecord::Base"
+which provides a lot of built-in functionality for querying and manipulating data.
+
+3- Validation: Models can include validations to ensure that only valid data is saved to the database.
+For example, you can validate the presence of a field, check for uniqueness, or enforce format constraints.
+
+4-Associations: Models can define relationships with other models, such as "has_many", "belongs_to", and "has_one".
+This allows you to easily navigate between related data.
+
+5-Business Logic: Models can contain methods that encapsulate business logic related to the data they represent.
+This keeps your controllers thin and focused on handling requests and responses.
+
+6-Migrations: When you create a model, you often create a migration file that defines the structure of the corresponding database table. 
+This allows you to version control your database schema.
+
+Example of a MOdel in Rails: User Model
+File Name: user.rb
+Class Name: User (Singular, capitalized )
+Location: app/models/user.rb
+-------------------code----------------------
+class User < ApplicationRecord
+  # Validations
+  validates :name, presence: true
+  validates :email, presence: true, uniqueness: true
+
+  # Associations
+  has_many :posts
+
+  # Business logic
+  def full_name
+    "#{first_name} #{last_name}"
+  end
+end
+-------------------code----------------------
+In this example:
+- The User model represents a users table in the database.
+- It includes validations for the presence of name and email, and ensures that the email is unique.
+- It defines a one-to-many relationship with a Post model.
+- It has a method full_name that combines the first and last name of the user.
+
+View: is a component of the MVC (Model-View-Controller) architecture that is responsible for the presentation layer of the application.
+It is what the user interacts with in the browser or mobile application. 
+key points about Views in Rails:
+1- Presentation Layer: Views are responsible for displaying data to the user. 
+They render the HTML, CSS, and JavaScript that make up the user interface of the application.
+
+2- Templates: Rails uses template files to generate the HTML for views. These templates can be written in various formats, 
+including ERB (Embedded Ruby), HAML, or Slim. ERB is the most commonly used format, allowing you to embed Ruby code within HTML.
+The <%= %> syntax is used to output Ruby expressions
+-------------------code----------------------
+<%= %>
+-------------------code----------------------
+while <% %> is used for Ruby code that does not produce output (like loops).
+-------------------code----------------------
+<% %>
+-------------------code----------------------
+
+3- Data Rendering: Views can access data from the controller and render it dynamically. This means that the content displayed in the view can change based on the data passed from the controller.
+
+4-Partial Views: Rails allows you to create partial views, which are reusable view components. This helps to keep your code DRY (Don't Repeat Yourself) 
+by allowing you to share common elements across different views.
+
+5-Layouts: Views can be organized into layouts, which define the overall structure of the page (like headers, footers, and navigation). 
+A layout can wrap around multiple views, providing a consistent look and feel across the application.
+
+6-View Helpers: Rails provides a set of view helper methods that can be used to simplify common tasks in views, such as formatting dates, generating links, and creating forms.
+
+Example of a View in Rails: User view
+Folder Name: users
+Location: app/views/users/
+View Files:
+Index View: index.html.erb (for listing all users)
+Show View: show.html.erb (for displaying a single user)
+New View: new.html.erb (for the form to create a new user)
+Edit View: edit.html.erb (for the form to edit an existing user)
+-------------------code----------------------
+<!-- app/views/users/show.html.erb -->
+<h1><%= @user.full_name %></h1>
+<p>Email: <%= @user.email %></p>
+
+<h2>Posts:</h2>
+<ul>
+  <% @user.posts.each do |post| %>
+    <li><%= post.title %></li>
+  <% end %>
+</ul>
+-------------------code----------------------
+In this example:
+- The view displays the full name and email of a user.
+- It also lists all the posts associated with that user.
+- The <%= %> syntax is used to output Ruby expressions, while <% %> is used for Ruby code that does not produce output (like loops).
+
+Controller is a component of the MVC (Model-View-Controller) architecture that acts as an intermediary between the Model and the View.
+It is responsible for processing incoming requests, interacting with the Model to retrieve or manipulate data, 
+and rendering the appropriate View to send back to the user. 
+
+key points about Controllers in Rails:
+1- Request Handling: Controllers respond to user actions, typically triggered by HTTP requests (like GET, POST, PUT, DELETE). 
+Each action in a controller corresponds to a specific route in the application.
+
+2- Action Methods: Each public method in a controller is an action that can be invoked by a route. 
+Common actions include index (to list items), show (to display a single item), 
+new (to render a form for creating a new item), create (to save a new item), edit (to render a form for editing an existing item), 
+update (to save changes to an existing item), and destroy (to delete an item).
+
+3-Data Interaction: Controllers interact with Models to retrieve, create, update, or delete data. They can use Active Record methods to perform these operations.
+
+4- Instance Variables: Controllers often set instance variables (e.g., @user, @posts) that are then accessible in the corresponding Views. This allows the View to display data that the Controller has prepared.
+Redirects and Rendering: After processing a request, a Controller can either render a View directly or redirect the user to another action. Redirecting is often used after creating or updating resources to prevent duplicate submissions.
+
+5- Filters: Controllers can use before, after, and around filters to run specific code before or after certain actions.
+This is useful for tasks like authentication, logging, or setting up common data.
+
+Example of a Controller in Rails: UsersController
+File Name: users_controller.rb
+Class Name: UsersController (Plural, capitalized, with "Controller" suffix)
+Location: app/controllers/users_controller.rb
+-------------------code----------------------
+class UsersController < ApplicationController
+  # GET /users
+  def index
+    @users = User.all
+  end
+
+  # GET /users/:id
+  def show
+    @user = User.find(params[:id])
+  end
+
+  # GET /users/new
+  def new
+    @user = User.new
+  end
+
+  # POST /users
+  def create
+    @user = User.new(user_params)
+    if @user.save
+      redirect_to @user, notice: 'User was successfully created.'
+    else
+      render :new
+    end
+  end
+
+  private
+
+  def user_params
+    params.require(:user).permit(:name, :email, :first_name, :last_name)
+  end
+end
+-------------------code----------------------
+
+In this example:
+- The "UsersController" handles requests related to users.
+- The "index" action retrieves all users and makes them available to the view.
+- The "show" action finds a specific user by ID.
+- The "new" action initializes a new user object for the form.
+- The "create" action attempts to save a new user and either redirects to the user's show page or re-renders the new form if there are validation errors.
+- The "user_params" method is a private method that ensures only permitted parameters are used for mass assignment.
+
+
+- now in tha app folder we can see:
+models folder where we put the model files.
+controllers folder where we put the controller files.
+views folder where we put the view files.
+
+- model:
+concerns files:
+Concerns are a way to encapsulate shared functionality that can be reused across multiple models or controllers.
+They help keep your code DRY (Don't Repeat Yourself) by allowing you to extract common behavior into modules.
+Concerns are typically stored in the app/models/concerns or app/controllers/concerns directories.
+
+Key Points about Concerns:
+1- Modularization: Concerns allow you to break down complex models or controllers into smaller, more manageable pieces.
+2- Reusability: You can include the same concern in multiple models or controllers, promoting code reuse.
+3- Organization: They help keep your models and controllers clean and focused on their primary responsibilities.
+
+Example of a Concern:
+example of a concern that adds a method for soft deletion to models:
+-------------------code----------------------
+# app/models/concerns/soft_deletable.rb
+module SoftDeletable
+  extend ActiveSupport::Concern
+
+  included do
+    default_scope { where(deleted_at: nil) }
+  end
+
+  def soft_delete
+    update(deleted_at: Time.current)
+  end
+
+  def restore
+    update(deleted_at: nil)
+  end
+end
+-------------------code----------------------
+
+We can include this concern in a model like this:
+-------------------code----------------------
+class User < ApplicationRecord
+  include SoftDeletable
+  # Other model code...
+end
+-------------------code----------------------
+
+ApplicationRecord file:
+ApplicationRecord is the base class for all models in a Rails application. 
+It inherits from ActiveRecord::Base, which provides the core functionality for interacting with the database. 
+By creating a custom base class (ApplicationRecord), you can add shared behavior or configurations for all your models in one place.
+
+Key Points about ApplicationRecord:
+1- Inheritance: All models in your application should inherit from ApplicationRecord instead of directly from ActiveRecord::Base.
+This allows you to define common methods, validations, or scopes that apply to all models.
+
+2- Centralized Configuration: You can set up configurations, such as default scopes or shared methods, that will be available to all models.
+-------------------code----------------------
+# app/models/application_record.rb
+class ApplicationRecord < ActiveRecord::Base
+  self.abstract_class = true
+
+  # Common methods or configurations can be added here
+  def self.default_order
+    order(created_at: :desc)
+  end
+end
+-------------------code----------------------
+
+Summary:
+- Concerns: Used to encapsulate shared functionality for models or controllers, promoting code reuse and organization.
+- ApplicationRecord: The base class for all models, 
+allowing you to define shared behavior and configurations for your application's models.
+
+Using concerns and ApplicationRecord effectively can lead to cleaner, more maintainable code in your Rails applications.
+
+controller
+in Ruby on Rails, concerns for controllers and the ApplicationController serve similar purposes as their counterparts in models, helping to organize code and manage shared functionality effectively.
+Concerns for controllers allow you to encapsulate shared functionality that can be reused across multiple controllers. This helps keep your code DRY (Don't Repeat Yourself) and organized.
+Concerns for controllers are typically stored in the app/controllers/concerns directory.
+
+Example of a Controller Concern:
+Here’s an example of a concern that handles authentication for controllers:
+# app/controllers/concerns/authenticatable.rb
+-------------------code----------------------
+module Authenticatable
+  extend ActiveSupport::Concern
+
+  included do
+    before_action :authenticate_user!
+  end
+
+  private
+
+  def authenticate_user!
+    redirect_to login_path unless current_user
+  end
+end
+-------------------code----------------------
+
+we can include this concern in a controller like this:
+-------------------code----------------------
+class UsersController < ApplicationController
+  include Authenticatable
+
+  # Controller actions...
+end
+-------------------code----------------------
+
+ApplicationController
+ApplicationController is the base class for all controllers in a Rails application.
+It inherits from ActionController::Base, which provides the core functionality for handling web requests and responses. 
+By creating a custom base class (ApplicationController), you can add shared behavior or configurations for all your controllers in one place.
+# app/controllers/application_controller.rb
+-------------------code----------------------
+class ApplicationController < ActionController::Base
+  protect_from_forgery with: :exception
+
+  # Common methods or filters can be added here
+  before_action :set_locale
+
+  private
+
+  def set_locale
+    I18n.locale = params[:locale] || I18n.default_locale
+  end
+end
+-------------------code----------------------
+
+Summary
+- Concerns for Controllers: Used to encapsulate shared functionality for controllers, promoting code reuse and organization.
+- ApplicationController: The base class for all controllers, allowing you to define shared behavior and configurations for your application's controllers.
+Using concerns and ApplicationController effectively can lead to cleaner, more maintainable code in your Rails applications, making it easier to manage shared logic across multiple controllers.
+
+view:
+Application Layout (application.html.erb)
+The application layout is a template that defines the overall structure of your web application's pages.
+It typically includes common elements such as headers, footers, and navigation menus that are shared across multiple views.
+The layout file is usually located in the app/views/layouts directory.
+
+Key Points about application.html.erb:
+1- Structure: The layout file provides a consistent structure for your application’s pages. 
+It wraps around the individual views rendered by controllers.
+2- Yield: The layout uses the <%= yield %> method to insert the content of the specific view being rendered. 
+This allows you to define a common layout while still rendering unique content for each page.
+3- Assets: You can include stylesheets, JavaScript files, and other assets in the layout to ensure they are available on all pages.
+
+Example of application.html.erb:
+-------------------code----------------------
+<!DOCTYPE html>
+<html>
+<head>
+  <title>My Rails App</title>
+  <%= csrf_meta_tags %>
+  <%= csp_meta_tag %>
+
+  <%= stylesheet_link_tag 'application', media: 'all' %>
+  <%= javascript_pack_tag 'application' %>
+</head>
+
+<body>
+  <header>
+    <h1>Welcome to My Rails App</h1>
+    <nav>
+      <%= link_to 'Home', root_path %>
+      <%= link_to 'Users', users_path %>
+    </nav>
+  </header>
+
+  <main>
+    <%= yield %> <!-- This is where the view content will be inserted -->
+  </main>
+
+  <footer>
+    <p>&copy; <%= Time.current.year %> My Rails App</p>
+  </footer>
+</body>
+</html>
+-------------------code----------------------
+
+
+Mailer Views (HTML and Text)
+Mailer views are used to define the content of emails sent from your Rails application. 
+Rails allows you to create both HTML and plain text versions of emails, ensuring that recipients can view the email in different formats depending on their email client.
+
+Key Points about Mailer Views:
+- HTML and Text Versions: You can create separate views for HTML and plain text emails. 
+This is useful for ensuring that your emails are readable in various email clients.
+
+- Mailer Class: Mailer views are associated with a specific mailer class, 
+which is responsible for sending the emails. The mailer class is typically located in the app/mailers directory.
+
+Example of Mailer Views:
+Assuming you have a UserMailer for sending user-related emails, here’s how you might structure the views:
+
+1. HTML View: app/views/user_mailer/welcome_email.html.erb
+-------------------code----------------------
+<h1>Welcome to My Rails App, <%= @user.name %>!</h1>
+<p>Thank you for signing up. We are glad to have you!</p>
+-------------------code----------------------
+
+2. Text View: app/views/user_mailer/welcome_email.text.erb
+-------------------code----------------------
+Welcome to My Rails App, <%= @user.name %>!
+
+Thank you for signing up. We are glad to have you!
+-------------------code----------------------
+
+Mailer Class Example:
+Here’s a simple example of a mailer class that uses the above views:
+# app/mailers/user_mailer.rb
+-------------------code----------------------
+class UserMailer < ApplicationMailer
+  def welcome_email(user)
+    @user = user
+    mail(to: @user.email, subject: 'Welcome to My Rails App')
+  end
+end
+-------------------code----------------------
+
+Summary
+- application.html.erb: The main layout file that provides a consistent structure for your web application’s pages.
+
+- Mailer Views: HTML and text views used to define the content of emails sent from your application, allowing for different formats to accommodate various email clients.
+Using application layouts and mailer views effectively helps create a cohesive user experience across your web application and email communications.
+
