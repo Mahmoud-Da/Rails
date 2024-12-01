@@ -1,0 +1,15 @@
+***************************************************************************  
+      Request
+       ----------------------->    (handle Request process)
+User                            Controller
+       <---------------------- /           \
+      Responses               /             \  result of business logic
+                             /               \
+                        
+(Handle what the user see) View               Model (handle business logic)
+                      (HTML/CSS/JS)           |                                             
+                                              |    
+                                             DB
+***************************************************************************
+
+
