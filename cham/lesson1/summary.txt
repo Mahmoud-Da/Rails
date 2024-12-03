@@ -13,3 +13,11 @@ User                            Controller
 ***************************************************************************
 
 
+- アプリ　新規作成
+rails new "アプリ名"
+
+
+- アプリ　起動
+rails server または rails s
+
+- rails generate controller tasks
