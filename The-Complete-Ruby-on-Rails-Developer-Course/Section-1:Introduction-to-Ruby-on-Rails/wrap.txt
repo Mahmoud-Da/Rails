@@ -441,3 +441,178 @@ Summary
 - Mailer Views: HTML and text views used to define the content of emails sent from your application, allowing for different formats to accommodate various email clients.
 Using application layouts and mailer views effectively helps create a cohesive user experience across your web application and email communications.
 
+*** 3- Root route, controller, more MVC and say 'Hello World!' ***
+
+what we will do
+1- display "Hello World!" in the browser
+2- formalize using Rails convention
+3- Review MVC information
+
+- first we will run our application 
+-------------------code----------------------
+rails s
+-------------------code----------------------
+
+- and we go to the default page
+this called "route root"
+-------------------code----------------------
+http://localhost:3000/
+-------------------code----------------------
+In Ruby on Rails, the term "route root" refers to the root route of your application,
+which is the default path that users will access when they visit the base URL of your application
+
+ex: 
+the root of google site
+-------------------code----------------------
+https://www.google.com/
+-------------------code----------------------
+
+
+- now we will change the root route for our application
+
+- first we got to the config/route.rb
+we we access we see it doesn't contain any root 
+-------------------code----------------------
+Rails.application.routes.draw do
+  # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
+
+  # Defines the root path route ("/")
+  # root "articles#index"
+end
+-------------------code----------------------
+
+- we delete the comments we add our root keyword and inside the 
+quotation we add the specific controller action that is typically 
+used to define what happens when a user accesses the root URL of your application.
+
+- at this point we will not set the root to new controller we want to set it 
+to ou application_controller.rb 
+so we add our controller name then we add the action that handle that request
+"controller-name#action-name"
+-------------------code----------------------
+root "application#hello "
+-------------------code----------------------
+
+- now if we refresh the browser we see error 
+-------------------code----------------------
+ApplicationController#hello is missing a template for request formats: text/html
+-------------------code----------------------
+
+- the reason for that cause our application_controller.rb doesn't have the hello action (method)
+- inside the application_controller.rb we can see it`s empty  
+-------------------code----------------------
+class ApplicationController < ActionController::Base
+end
+-------------------code----------------------
+
+- now we want to create hello action to handle Hello World
+so inside the application_controller.rb we define the hello action(method)
+-------------------code----------------------
+class ApplicationController < ActionController::Base
+  def hello
+   
+  end
+end
+-------------------code----------------------
+
+we got error 
+-------------------code----------------------
+applicationController#hello is missing a template for request formats: text/html
+-------------------code----------------------
+reason for that 
+when you call the hello action in your ApplicationController, Rails is looking for a corresponding view template to render, but it can't find one.
+
+so we render html template directly
+-------------------code----------------------
+class ApplicationController < ActionController::Base
+  def hello
+   render html: "Hello World"
+  end
+end
+-------------------code----------------------
+
+- now of we reload the page we can see hello World
+
+- We have implemented the basic code required to display "Hello World" in our Rails application. 
+However, this approach is not ideal for code organization. 
+Directly rendering HTML from the controller bypasses the use of the views folder and the application layout file, which should be utilized for better design and maintainability.
+
+Conventional Expectations
+1- Define a route that points to a controller#action.
+2- Have an appropriately named controller. For example, if dealing with layouts or static pages, a suitable name could be pages_controller.
+3- Have an appropriately named action. For instance, if dealing with a homepage, the action/method could be named home.
+4- If done this way, under views, Rails will expect a pages folder (named for the pages controller) and a home.html.erb template (named for the home action).
+
+to do that in action 
+1- we remove all the code form the application_controller
+
+2- we add root
+-------------------code----------------------
+root "pages#home"
+-------------------code----------------------
+
+3- we create pages_controller.rb 
+with empty home action 
+-------------------code----------------------
+class PagesController < ApplicationController
+  def home
+  end
+end
+-------------------code----------------------
+
+3- inside the view we create pages folder and inside we create 
+-------------------code----------------------
+home.html.erb
+-------------------code----------------------
+
+4- we add inside the Hello World!
+-------------------code----------------------
+<h1>Hello World!</h1>
+-------------------code----------------------
+
+
+faster way:
+now we want to create post with index and set as default
+
+-------------------code----------------------
+root "posts#index"
+-------------------code----------------------
+
+- next in our terminal 
+rails generate controller "the name of the controller"
+-------------------code----------------------
+rails generate controller posts
+-------------------code----------------------
+
+we rails we generate 8 files 
+/app/controllers/posts_controller.rb 
+/app/helpers/posts_helper.rb
+/test/controllers/posts_controller_test.rb
+
+- PostsController: This file contains the PostsController class, which is responsible for handling requests related to posts. 
+It typically includes action methods (like index, show, new, create, edit, update, and destroy) 
+that define the behavior for each of these actions.
+
+- PostsHelper: This file is a helper module associated with the PostsController. 
+It can contain methods that are used in the views related to posts. 
+Helpers are useful for keeping your views clean and DRY (Don't Repeat Yourself) by encapsulating reusable code.
+rb
+- PostsControllerTest: 
+This file contains test cases for the PostsController. It is used to ensure that the controller behaves as expected.
+You can write tests for each action in the controller to verify that they respond correctly 
+to requests and render the appropriate views or data.
+
+- next in the posts_controller.rb  we add index action 
+-------------------code----------------------
+class PostsController < ApplicationController
+  def index
+  end
+end
+-------------------code----------------------
+
+- finally inside the view/posts folder we create index.html.erb
+-------------------code----------------------
+<h1>Posts</h1>
+-------------------code----------------------  
+
+now if refresh the browser we can see Posts
