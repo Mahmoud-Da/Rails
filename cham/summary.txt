@@ -21,3 +21,13 @@ rails new "アプリ名"
 rails server または rails s
 
 - rails generate controller tasks
+
+- table 作成
+rails g migration create_article
+
+- dbに反映
+rails db:migrate
+
+rails db:migrate:status
+
+rails db:rollback
