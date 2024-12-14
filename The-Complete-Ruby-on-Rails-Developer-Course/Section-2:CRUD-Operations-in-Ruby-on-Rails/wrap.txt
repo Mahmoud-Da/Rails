@@ -1,0 +1,265 @@
+*** 1-Tables, migrations and naming conventions ***
+
+- we're going to build these basically the entire
+articles resource from scratch so we understand all the code that goes into it.
+
+we will start with article table and article model
+Rails naming convention:
+Article resource
+Model name: article
+Article Model file name: article.rb
+Article model class name Article
+
+Table: articles
+id: called the primary key
+title: string have limit with 255 char
+description: text has more that 255 char
+-------------------code----------------------
+id | title | description
+1  |  first_article  | description_of_first_description
+2  |  second_article | description_of_second_description
+3  |  third_article  | description_of_third_description
+4  |  fourth_article | description_of_third_description
+-------------------code----------------------
+
+- we create our table using so do that we need to create migration file
+the name of the migration file should  be something we understand later on and named using Snakecase.
+-------------------code----------------------
+rails g migration create_articles
+-------------------code----------------------
+
+in the terminal we see that it
+-------------------code----------------------
+invoke  active_record
+create    db/migrate/20241214064512_create_articles.rb
+-------------------code----------------------
+
+- the file will be created inside the db/migrate folder 
+the first part of the file name is  20241214064512 is the timestamp
+And Rails will use this to track migration files as they are created. This is the only reason we actually used a generator to create this file instead of creating it by hand.
+The ordering of migration files as we create more of them will be very important.
+
+because of the way we named our migration file Create articles, Rails was smart enough to
+know that we wanted to create an articles table.
+within this define change method that we have, it has the code necessary to create the articles
+table pre filled in, but it has no details within this code block.
+So what we'll do is we're going to go ahead and add our title attribute within this code.
+
+it crete to us this migration
+-------------------code----------------------
+class CreateArticles < ActiveRecord::Migration[8.0]
+  def change
+    create_table :articles do |t|
+      t.timestamps
+    end
+  end
+end
+-------------------code----------------------
+
+- now we add the data that we need the title
+-------------------code----------------------
+class CreateArticles < ActiveRecord::Migration[8.0]
+  def change
+    create_table :articles do |t|
+      t.string :title
+      t.timestamps
+    end
+  end
+end
+-------------------code----------------------
+
+
+- now we migrate our file
+-------------------code----------------------
+rails db:migrate
+-------------------code----------------------
+
+- in the console we got 
+-------------------code----------------------
+== 20241214070114 CreateArticles: migrating ===================================
+-- create_table(:articles)
+   -> 0.0009s
+== 20241214070114 CreateArticles: migrated (0.0009s) ==========================
+-------------------code----------------------
+
+- now we can check the table detail in the schema file db/schema
+what is schema:
+auto-generated file that represents the current state of your database schema. 
+It is created based on the migrations that have been run in your application. 
+-------------------code---------------------- 
+ActiveRecord::Schema[8.0].define(version: 2024_12_14_070114) do
+  create_table "articles", force: :cascade do |t|
+    t.string "title"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+end
+-------------------code----------------------
+
+
+
+PS:
+Rails will only run migration files that have not been run already.
+
+
+so if we run the migrate command again
+-------------------code----------------------
+rails db:migrate
+-------------------code----------------------
+
+- nothing happens cause it runs any un run migration files or any new migration files
+since the last time we issued this command.
+
+- now at this point 
+even if I wanted to change something in this migration file
+let`s say we want to add the description
+-------------------code---------------------- 
+class CreateArticles < ActiveRecord::Migration[8.0]
+  def change
+    create_table :articles do |t|
+      t.string :title
+      t.text :description
+      t.timestamps
+    end
+  end
+end
+-------------------code----------------------
+
+- now if i run  Rails DB migrate again, nothing happened
+-------------------code----------------------
+rails db:migrate
+-------------------code----------------------
+
+- and if we open the schema file we can see the article table
+not updated. 
+so why?
+
+- So in this scenario, if we wanted to change an existed migration file what we are going to 
+do the rollback
+-------------------code----------------------
+rails db:rollback
+-------------------code----------------------
+
+the migration file has reverting
+-------------------code----------------------
+== 20241214070114 CreateArticles: reverting ===================================
+-- drop_table(:articles)
+   -> 0.0012s
+== 20241214070114 CreateArticles: reverted (0.0020s) ==========================
+-------------------code----------------------
+
+and if we open the schema file we see it became empty
+-------------------code----------------------
+ActiveRecord::Schema[8.0].define(version: 0) do
+end
+-------------------code----------------------
+
+and then change the file 
+finally rerun 
+-------------------code----------------------
+rails db:migrate
+-------------------code----------------------
+
+we can see the schema file is updated
+-------------------code----------------------
+ActiveRecord::Schema[8.0].define(version: 2024_12_14_070114) do
+  create_table "articles", force: :cascade do |t|
+    t.string "title"
+    t.text "description"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+end
+
+-------------------code----------------------
+
+PS: is not the preferred way to do that, basically in rails we don`t change an existed 
+migration file after created it
+
+And there are a few reasons.
+And there are several reasons for this.
+One key reason is that you will likely collaborate with team members, sharing code repositories. Migration files will run on their machines as well.
+If a team member pulls the latest changes, including updates to a previous migration, those changes won't reflect in their database since that migration has already been executed on their system.
+This can lead to codebases being out of sync, which is why modifying existing migration files is discouraged.
+
+so instead always create 
+Instead, always create a new migration file for any database changes. 
+This way, when a team member downloads the latest code, the new changes will be reflected in the new migration file. 
+When they run `rails db:migrate`, it will apply the updates instead of ignoring an earlier modified migration file.
+
+- let`s say we want to publisher felid
+
+- we create new migration file and give it name that relevant "add_publisher_to_articles"
+-------------------code----------------------
+rails g migration add_publisher_to_articles
+-------------------code----------------------
+
+- now rails didn`t know which changes to do it create custom migrate file with change method 
+early cause we prefix the migration file with create the rails knows that we want to create table 
+so the migration file start with create table but now it dose`t  know so we have only change method
+-------------------code----------------------
+class AddPublisherToArticles < ActiveRecord::Migration[8.0]
+  def change
+  end
+end
+-------------------code----------------------
+
+- now we add the "add_column" method to add column to an existed table and the first argument 
+to provide will be the table name and the second attribute will be the column name and the third attribute 
+will be the column name and the forth attribute will be the data type
+-------------------code----------------------
+class AddPublisherToArticles < ActiveRecord::Migration[8.0]
+  def change
+    add_column :articles, :publisher, :string 
+  end
+end
+-------------------code----------------------
+
+- now we new migration file that has not run before to check that we use the 
+-------------------code----------------------
+rails db:migrate:status
+-------------------code----------------------
+
+- We see "up" and "down" next to each migration file. 
+- The command `rails db:migrate` only applies migrations with the status "down".
+- To change the status of a migration, we use the rollback command, which sets it to "down".
+- After rolling back, we can run `rails db:migrate` again to apply the changes and set the migration status to "up".
+- Only migrations with the status "up" are reflected in the schema.
+- When we create a new migration file, its initial status is "down" until we apply it.
+-------------------code----------------------
+database: storage/development.sqlite3
+
+ Status   Migration ID    Migration Name
+--------------------------------------------------
+   up     20241214070114  Create articles
+  down    20241214073037  Add publisher to articles
+-------------------code----------------------
+
+- now when the migrate command 
+-------------------code----------------------
+rails db:migrate
+-------------------code----------------------
+
+and the the stats of the migration file we can see it became up 
+-------------------code----------------------
+database: storage/development.sqlite3
+
+ Status   Migration ID    Migration Name
+--------------------------------------------------
+   up     20241214070114  Create articles
+   up     20241214073037  Add publisher to articles
+-------------------code----------------------
+
+and we can see it reflected on the schema
+-------------------code----------------------
+ActiveRecord::Schema[8.0].define(version: 2024_12_14_073037) do
+  create_table "articles", force: :cascade do |t|
+    t.string "title"
+    t.text "description"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.string "publisher"
+  end
+end
+-------------------code----------------------
+
