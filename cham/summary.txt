@@ -31,3 +31,18 @@ rails db:migrate
 rails db:migrate:status
 
 rails db:rollback
+
+1- Article.create(title: "1番目の記事", description: "1番目の本文")
+
+
+2- 
+a = Article.new
+a.title = "2番目の記事"
+a.description = "2番目の本文"
+a.save!
+
+
+3- 
+b = Article.new(title: "3番目の記事", description: "3番目の本文")
+b.save!
+
