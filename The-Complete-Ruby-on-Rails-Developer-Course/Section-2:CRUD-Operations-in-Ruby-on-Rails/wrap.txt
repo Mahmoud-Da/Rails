@@ -504,3 +504,199 @@ rails-app(dev)> Article.all
   publisher: nil>]
 -------------------code----------------------
 
+- we can close the console by using exit or "ctrl + c" or "ctrl + d" 
+
+*** 3-CRUD operations from rails console ***
+to get a data we have multi ways:
+- using the find with number of the id
+-------------------code----------------------
+Article.find(1)
+-------------------code----------------------
+
+the result:
+-------------------code----------------------
+  Article Load (0.4ms)  SELECT "articles".* FROM "articles" WHERE "articles"."id" = 3 LIMIT 1 /*application='RailsApp'*/
+=>
+#<Article:0x00000001068bf018
+ id: 3,
+ title: "article3",
+ description: "this is the third article",
+ created_at: "2024-12-17 12:38:41.285133000 +0000",
+ updated_at: "2024-12-17 12:38:41.285133000 +0000",
+ publisher: nil>
+-------------------code----------------------
+
+
+- but what if we want to get the first Article
+and the first article does`nt start with id 1
+-------------------code----------------------
+Article.first
+-------------------code----------------------
+
+it return a different sql query and show the first article regardless of the id number
+-------------------code----------------------
+Article Load (0.2ms)  SELECT "articles".* FROM "articles" ORDER BY "articles"."id" ASC LIMIT 1 /*application='RailsApp'*/
+=>
+#<Article:0x00000001071599d0
+ id: 1,
+ title: "article1",
+ description: "this is the first article",
+ created_at: "2024-12-17 10:56:55.496899000 +0000",
+ updated_at: "2024-12-17 10:56:55.496899000 +0000",
+ publisher: nil>
+ -------------------code----------------------
+
+PS: if we want to change that record we should save it to a variable
+-------------------code----------------------
+a = Article.first
+-------------------code----------------------
+
+The article model gives us getters and setters for the attributes of our articles so I can use the getters
+available and directly call on the attribute.
+
+
+or if we want to check only data 
+-------------------code----------------------
+rails-app(dev)> a.title
+=> "article1"
+-------------------code----------------------
+
+- or we can use the setter to edit the value and updated
+-------------------code----------------------
+rails-app(dev)> a.title = "new title"
+=> "new title"
+-------------------code----------------------
+
+- now we see the a 
+-------------------code----------------------
+rails-app(dev)> a
+=>
+#<Article:0x000000010715c590
+ id: 1,
+ title: "new title",
+ description: "this is the first article",
+ created_at: "2024-12-17 10:56:55.496899000 +0000",
+ updated_at: "2024-12-18 10:51:04.932181000 +0000",
+ publisher: nil>
+-------------------code----------------------
+
+- but the data is not save in database yet only exist in the memory
+if we type Article.first we can see the data in database still not edited
+-------------------code----------------------
+rails-app(dev)> Article.first
+  Article Load (0.3ms)  SELECT "articles".* FROM "articles" ORDER BY "articles"."id" ASC LIMIT 1 /*application='RailsApp'*/
+=>
+#<Article:0x0000000107153e90
+ id: 1,
+ title: "article1",
+ description: "this is the first article",
+ created_at: "2024-12-17 10:56:55.496899000 +0000",
+ updated_at: "2024-12-18 10:51:04.932181000 +0000",
+ publisher: nil>
+-------------------code----------------------
+
+- so we need to save it to be updated in the database
+-------------------code----------------------
+rails-app(dev)> a.save!
+  TRANSACTION (0.1ms)  BEGIN immediate TRANSACTION /*application='RailsApp'*/
+  Article Update (1.5ms)  UPDATE "articles" SET "title" = 'new title', "updated_at" = '2024-12-18 10:53:32.363168' WHERE "articles"."id" = 1 /*application='RailsApp'*/
+  TRANSACTION (1.1ms)  COMMIT TRANSACTION /*application='RailsApp'*/
+=> true
+-------------------code----------------------
+
+- now if we check the database we can see it changed
+-------------------code----------------------
+rails-app(dev)> Article.first
+  Article Load (0.3ms)  SELECT "articles".* FROM "articles" ORDER BY "articles"."id" ASC LIMIT 1 /*application='RailsApp'*/
+=>
+#<Article:0x00000001071526d0
+ id: 1,
+ title: "new title",
+ description: "this is the first article",
+ created_at: "2024-12-17 10:56:55.496899000 +0000",
+ updated_at: "2024-12-18 10:53:32.363168000 +0000",
+ publisher: nil>
+-------------------code----------------------
+
+- next we will see the delete operation
+
+- now we will grab the last one
+-------------------code----------------------
+a_last = Article.last
+-------------------code----------------------
+
+to delete it we have tow ways:
+using delete or using destroy
+Ps: 
+- only have delete method
+while destroy have destroy and destroy!
+
+- the destroy or delete method no need to use save! 
+it does the operation automatically
+
+what is the difference between delete and destroy?
+******************************************************************************************************
+delete
+Method: delete
+Behavior: Deletes the record directly from the database without instantiating the ActiveRecord object.
+Callbacks: Does not trigger any ActiveRecord callbacks (like before_destroy or after_destroy).
+Associations: Does not handle dependent associations. If there are any dependent records, they will not be deleted.
+Return Value: Returns the deleted record (as an instance of the model) or nil if the record was not found.
+-------------------code----------------------
+article = Article.find(1)
+article.delete
+-------------------code----------------------
+
+destroy
+Method: destroy
+Behavior: Instantiates the ActiveRecord object and then deletes it from the database.
+Callbacks: Triggers all ActiveRecord callbacks, including before_destroy and after_destroy. 
+This is useful for cleaning up related data or performing other actions before or after the record is deleted.
+Associations: Handles dependent associations according to the dependent option specified in the model (e.g., dependent: :destroy).
+-------------------code----------------------
+Return Value: Returns the deleted record (as an instance of the model).
+article = Article.find(1)
+article.destroy
+-------------------code----------------------
+
+Summary
+Use delete when you want to quickly remove a record without any callbacks or associated records being affected.
+Use destroy when you need to ensure that callbacks are executed and any dependent records are also handled appropriately.
+******************************************************************************************************
+
+
+- now if we have problem in our model 
+our model file is empty which means there is no rules for creating data or updating or deleting it at all
+so we can crete article with empty title and empty description
+and it`s bad practice 
+
+ex:
+- we create empty article
+-------------------code----------------------
+a = Article.new
+-------------------code----------------------
+
+- then we can save it 
+-------------------code----------------------
+a.save!
+-------------------code----------------------
+
+- and if we see the data it`s empty
+-------------------code----------------------
+rails-app(dev)> Article.last
+  Article Load (0.3ms)  SELECT "articles".* FROM "articles" ORDER BY "articles"."id" DESC LIMIT 1 /*application='RailsApp'*/
+=>
+#<Article:0x000000010a43a7a0
+ id: 4,
+ title: nil,
+ description: nil,
+ created_at: "2024-12-18 11:05:26.602293000 +0000",
+ updated_at: "2024-12-18 11:05:26.602293000 +0000",
+ publisher: nil>
+-------------------code----------------------
+
+
+- it`s not valid record so we destroy it 
+-------------------code----------------------
+Article.last.destroy!
+-------------------code----------------------
