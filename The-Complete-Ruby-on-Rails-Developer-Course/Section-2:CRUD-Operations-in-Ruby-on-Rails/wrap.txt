@@ -325,7 +325,7 @@ TRANSACTION (0.1ms)  BEGIN immediate TRANSACTION /*application='RailsApp'*/
  created_at: "2024-12-17 10:56:55.496899000 +0000",
  updated_at: "2024-12-17 10:56:55.496899000 +0000",
  publisher: nil>
-rails-app(dev)>
+>
 -------------------code----------------------
 ******************************************************************************************************
 What is Transaction?
@@ -348,7 +348,7 @@ timestamps automatically for us.
 
 - now if we wrote the Article.all we can see our created record 
 -------------------code----------------------
-rails-app(dev)> Article.all
+> Article.all
   Article Load (0.3ms)  SELECT "articles".* FROM "articles" /* loading for pp */ LIMIT 11 /*application='RailsApp'*/
 =>
 [#<Article:0x000000010504adc0
@@ -391,7 +391,7 @@ article.description = "this is the second article"
 we see the id is nill that means the object is not saved to the data base
 so it`s still object in the memory and not yet a record in the data base
 -------------------code----------------------
-rails-app(dev)> article
+> article
 =>
 #<Article:0x0000000105046f40
  id: nil,
@@ -400,12 +400,12 @@ rails-app(dev)> article
  created_at: nil,
  updated_at: nil,
  publisher: nil>
-rails-app(dev)>
+>
 -------------------code----------------------
 
 - now we save the object to the db using the "save" command
 -------------------code----------------------
-rails-app(dev)> article.save
+> article.save
 TRANSACTION (0.1ms)  BEGIN immediate TRANSACTION /*application='RailsApp'*/
   Article Create (8.4ms)  INSERT INTO "articles" ("title", "description", "created_at", "updated_at", "publisher") VALUES ('second article', 'this is the second article', '2024-12-17 12:31:51.612805', '2024-12-17 12:31:51.612805', NULL) RETURNING "id" /*application='RailsApp'*/
   TRANSACTION (0.4ms)  COMMIT TRANSACTION /*application='RailsApp'*/
@@ -427,7 +427,7 @@ Error Handling: Raises an ActiveRecord::RecordInvalid exception if the save fail
 
 - now if we type Article.all we see two records
 -------------------code----------------------
-rails-app(dev)> Article.all
+> Article.all
   Article Load (0.3ms)  SELECT "articles".* FROM "articles" /* loading for pp */ LIMIT 11 /*application='RailsApp'*/
 =>
 [#<Article:0x0000000106f7cd10
@@ -449,7 +449,7 @@ rails-app(dev)> Article.all
 - now we check our article object we see the id of it became 
 2 that`s means it saved to the database
 -------------------code----------------------
-rails-app(dev)> article
+> article
 =>
 #<Article:0x0000000105046f40
  id: 2,
@@ -469,7 +469,7 @@ article = Article.new(title: "article3", description: "this is the third article
 
 - then use the save! method
 -------------------code----------------------
-rails-app(dev)> article.save!
+> article.save!
   TRANSACTION (0.1ms)  BEGIN immediate TRANSACTION /*application='RailsApp'*/
   Article Create (1.6ms)  INSERT INTO "articles" ("title", "description", "created_at", "updated_at", "publisher") VALUES ('article3', 'this is the third article', '2024-12-17 12:38:41.285133', '2024-12-17 12:38:41.285133', NULL) RETURNING "id" /*application='RailsApp'*/
   TRANSACTION (0.4ms)  COMMIT TRANSACTION /*application='RailsApp'*/
@@ -478,7 +478,7 @@ rails-app(dev)> article.save!
 
 - finally we use our Article.all to check our all records
 -------------------code----------------------
-rails-app(dev)> Article.all
+> Article.all
   Article Load (0.2ms)  SELECT "articles".* FROM "articles" /* loading for pp */ LIMIT 11 /*application='RailsApp'*/
 =>
 [#<Article:0x0000000106fdd0c0
@@ -557,19 +557,19 @@ available and directly call on the attribute.
 
 or if we want to check only data 
 -------------------code----------------------
-rails-app(dev)> a.title
+> a.title
 => "article1"
 -------------------code----------------------
 
 - or we can use the setter to edit the value and updated
 -------------------code----------------------
-rails-app(dev)> a.title = "new title"
+> a.title = "new title"
 => "new title"
 -------------------code----------------------
 
 - now we see the a 
 -------------------code----------------------
-rails-app(dev)> a
+> a
 =>
 #<Article:0x000000010715c590
  id: 1,
@@ -583,7 +583,7 @@ rails-app(dev)> a
 - but the data is not save in database yet only exist in the memory
 if we type Article.first we can see the data in database still not edited
 -------------------code----------------------
-rails-app(dev)> Article.first
+> Article.first
   Article Load (0.3ms)  SELECT "articles".* FROM "articles" ORDER BY "articles"."id" ASC LIMIT 1 /*application='RailsApp'*/
 =>
 #<Article:0x0000000107153e90
@@ -597,7 +597,7 @@ rails-app(dev)> Article.first
 
 - so we need to save it to be updated in the database
 -------------------code----------------------
-rails-app(dev)> a.save!
+> a.save!
   TRANSACTION (0.1ms)  BEGIN immediate TRANSACTION /*application='RailsApp'*/
   Article Update (1.5ms)  UPDATE "articles" SET "title" = 'new title', "updated_at" = '2024-12-18 10:53:32.363168' WHERE "articles"."id" = 1 /*application='RailsApp'*/
   TRANSACTION (1.1ms)  COMMIT TRANSACTION /*application='RailsApp'*/
@@ -606,7 +606,7 @@ rails-app(dev)> a.save!
 
 - now if we check the database we can see it changed
 -------------------code----------------------
-rails-app(dev)> Article.first
+> Article.first
   Article Load (0.3ms)  SELECT "articles".* FROM "articles" ORDER BY "articles"."id" ASC LIMIT 1 /*application='RailsApp'*/
 =>
 #<Article:0x00000001071526d0
@@ -683,7 +683,7 @@ a.save!
 
 - and if we see the data it`s empty
 -------------------code----------------------
-rails-app(dev)> Article.last
+> Article.last
   Article Load (0.3ms)  SELECT "articles".* FROM "articles" ORDER BY "articles"."id" DESC LIMIT 1 /*application='RailsApp'*/
 =>
 #<Article:0x000000010a43a7a0
@@ -701,3 +701,138 @@ rails-app(dev)> Article.last
 Article.last.destroy!
 -------------------code----------------------
 
+*** 4-Validations ***
+
+we will work to add validation into article model to avoid 
+creating invalid data
+ 
+Validation:
+in the context of a Rails application refers to the process of ensuring 
+that the data being saved to the database meets certain 
+criteria or rules before it is actually saved. 
+This is crucial for maintaining data integrity and ensuring that the application behaves as expected.
+
+- now we want to add validation that articles without
+a title are not saved to the database.
+
+- so inside the app/model/article.rb file 
+we use the "validates" keyword with the "presence" option and set it to true 
+-------------------code----------------------
+class Article < ApplicationRecord
+  validates :title, presence: true
+end
+-------------------code----------------------
+
+- now let`s test our validation
+before that if we already opened the console we need to reload 
+by pressing 
+-------------------code----------------------
+reload!
+-------------------code----------------------
+
+- or close the console and reopened it
+
+- now we create new record
+-------------------code----------------------
+article = Article.new
+=> #<Article:0x0000000109a79900 id: nil, title: nil, description: nil, created_at: nil, updated_at: nil, publisher: nil>
+-------------------code----------------------
+
+- now if we tried to save it we got false 
+-------------------code----------------------
+> article.save
+=> false
+-------------------code----------------------
+
+- to see the error why we use save!
+-------------------code----------------------
+> article.save!
+(rails-app):7:in `<main>': Validation failed: Title can't be blank (ActiveRecord::RecordInvalid)
+-------------------code----------------------
+
+- or we can see the error using the "errors" method
+-------------------code----------------------
+> article.errors
+=> #<ActiveModel::Errors [#<ActiveModel::Error attribute=title, type=blank, options={}>]>
+-------------------code----------------------
+
+- and if we want to read the message clearly we use errors.full_message
+-------------------code----------------------
+> article.errors.full_messages
+=> ["Title can't be blank"]
+-------------------code----------------------
+
+- now we do the same thing for the description
+and we hit reload!
+-------------------code----------------------
+class Article < ApplicationRecord
+  validates :title, presence: true
+  validates :description, presence: true
+end
+-------------------code----------------------
+
+and then create new article to test 
+-------------------code----------------------
+> article = Article.new
+=> #<Article:0x0000000109ad7f28 id: nil, title: nil, description: nil, created_at: nil, updated_at: nil, publisher: nil>
+> article.save!
+(rails-app):16:in `<main>': Validation failed: Title can't be blank, Description can't be blank (ActiveRecord::RecordInvalid)
+> article.errors.full_messages
+=> ["Title can't be blank", "Description can't be blank"]
+-------------------code----------------------
+
+- now if we add the title only and test it we see
+we can`t save it too cause the description still empty 
+-------------------code----------------------
+> article.title = "test"
+=> "test"
+> article.save!
+(rails-app):19:in `<main>': Validation failed: Description can't be blank (ActiveRecord::RecordInvalid)
+> article.errors.full_messages
+=> ["Description can't be blank"]
+-------------------code----------------------
+
+- now if we add the description we can save it 
+-------------------code----------------------
+> article.description = "test description"
+=> "test description"
+> article.save!
+  TRANSACTION (0.0ms)  BEGIN immediate TRANSACTION /*application='RailsApp'*/
+  Article Create (4.2ms)  INSERT INTO "articles" ("title", "description", "created_at", "updated_at", "publisher") VALUES ('test', 'test description', '2024-12-21 07:36:28.069685', '2024-12-21 07:36:28.069685', NULL) RETURNING "id" /*application='RailsApp'*/
+  TRANSACTION (0.3ms)  COMMIT TRANSACTION /*application='RailsApp'*/
+=> true
+-------------------code----------------------
+
+
+- now we test another pattern if we create article with only one alphabet
+-------------------code----------------------
+> article = Article.new(title: "a", description: "b")
+=> #<Article:0x0000000109af8c00 id: nil, title: "a", description: "b", created_at: nil, updated_at: nil, publisher: nil>
+> article.save!
+  TRANSACTION (0.2ms)  BEGIN immediate TRANSACTION /*application='RailsApp'*/
+  Article Create (2.2ms)  INSERT INTO "articles" ("title", "description", "created_at", "updated_at", "publisher") VALUES ('a', 'b', '2024-12-21 07:38:31.073428', '2024-12-21 07:38:31.073428', NULL) RETURNING "id" /*application='RailsApp'*/
+  TRANSACTION (0.4ms)  COMMIT TRANSACTION /*application='RailsApp'*/
+=> true
+-------------------code----------------------
+
+- so what we want to do to force we need to enforce minimum length requirements for the title and the description.
+so for title we want minimum of 6 and maximum of 100 
+and for description we will set the minimum of 10 and maximum of 300
+-------------------code----------------------
+class Article < ApplicationRecord
+  validates :title, presence: true, length: { minimum: 6, maximum: 100}
+  validates :description, presence: true, length: { minimum: 10, maximum: 300}
+end
+-------------------code----------------------
+
+and now we test it 
+-------------------code----------------------
+> article = Article.new(title: "c", description: "d")
+=> #<Article:0x0000000108db2a78 id: nil, title: "c", description: "d", created_at: nil, updated_at: nil, publisher: nil>
+> article.save!
+(rails-app):28:in `<main>': Validation failed: Title is too short (minimum is 6 characters), Description is too short (minimum is 10 characters) (ActiveRecord::RecordInvalid)
+> article.errors.full_messages
+=> ["Title is too short (minimum is 6 characters)", "Description is too short (minimum is 10 characters)"]
+-------------------code----------------------
+
+- if we want to check the more validation we can check "Active Record validation"
