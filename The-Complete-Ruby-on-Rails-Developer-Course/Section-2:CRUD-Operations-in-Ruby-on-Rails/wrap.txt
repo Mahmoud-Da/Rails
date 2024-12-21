@@ -836,3 +836,234 @@ and now we test it
 -------------------code----------------------
 
 - if we want to check the more validation we can check "Active Record validation"
+
+5- Show articles (route, action and view)
+we are going to show the articles in the database to the screen 
+
+step1: create a route
+- we go to the config/routes.rb and create our route using the "resources" keyword
+this is going to give me all of the routes that I want for articles.
+-------------------code---------------------- 
+resources :articles
+-------------------code----------------------
+
+- to checkout the routes 
+1- use command line 
+-------------------code----------------------
+rails routes --expanded
+-------------------code----------------------
+
+2- use the browser by hitting un valid route
+-------------------code----------------------
+http://localhost:3000/dodo
+-------------------code----------------------
+
+- now if we check the result of using the rails route in the console 
+we see too much routes we don`t want to use all only the show 
+so we use the only keyword
+-------------------code----------------------
+resources :articles, only: [:show]
+-------------------code----------------------
+
+now after the root we can see only the show route 
+-------------------code----------------------
+--[ Route 3 ]-------------------------------------------------------------------------------------------------------------------------------------------
+Prefix            | root
+Verb              | GET
+URI               | /
+Controller#Action | pages#home
+Source Location   | rails-app/config/routes.rb:14
+--[ Route 4 ]-------------------------------------------------------------------------------------------------------------------------------------------
+Prefix            | article
+Verb              | GET
+URI               | /articles/:id(.:format)
+Controller#Action | articles#show
+Source Location   | rails-app/config/routes.rb:15
+-------------------code----------------------
+-------------------code----------------------
+
+- now if we check the URI we see it /articles/:id now let`s try access to the first 
+data http://localhost:3000/articles/1
+we got error cause we don`t have article controller
+-------------------code----------------------
+uninitialized constant ArticlesController
+Rails.root: rails-app
+-------------------code----------------------
+
+- so we can see that our routes is working properly but we don`t have a controller
+yet so we create file in the app/controllers/articles_controller.rb
+-------------------code----------------------
+class ArticleController < ApplicationController
+
+end
+-------------------code----------------------
+
+- now we try to access the http://localhost:3000/articles/1 again 
+we got 
+-------------------code----------------------
+Unknown action
+The action 'show' could not be found for ArticlesController
+-------------------code----------------------
+
+-  so we build show action 
+-------------------code----------------------
+class ArticlesController < ApplicationController
+  def show
+
+  end
+end
+-------------------code----------------------
+
+- we reload the url http://localhost:3000/articles/1 we got another error 
+-------------------code----------------------
+ArticlesController#show is missing a template for request formats: text/html
+-------------------code----------------------
+
+- so we crete articles folder inside the app/views folder with show.html.erb
+and we type heading
+-------------------code----------------------
+<h1>Showing article details</h1>
+-------------------code----------------------
+
+- now if we refresh the page we can see the header
+
+- now our purpose to show the data that related to the id: 1 
+
+- to do that we go back to show action in the controller
+so first of all how to find a specific article based on id in our case 1
+in rails console we can test that by typing 
+-------------------code----------------------
+> Article.find(1)
+  Article Load (0.2ms)  SELECT "articles".* FROM "articles" WHERE "articles"."id" = 1 LIMIT 1 /*application='RailsApp'*/
+=>
+#<Article:0x0000000111036dc8
+ id: 1,
+ title: "new title",
+ description: "this is the first article",
+ created_at: "2024-12-17 10:56:55.496899000 +0000",
+ updated_at: "2024-12-18 10:53:32.363168000 +0000",
+ publisher: nil>
+-------------------code----------------------
+
+- but if want to do something with the result we should assign to variable
+-------------------code----------------------
+article = Article.find(1)
+  Article Load (0.2ms)  SELECT "articles".* FROM "articles" WHERE "articles"."id" = 1 LIMIT 1 /*application='RailsApp'*/
+=>
+#<Article:0x0000000113133710
+...
+-------------------code----------------------
+
+- and then we can say something like to display it to the view
+-------------------code----------------------
+> article.id
+=> 1
+> article.title
+=> "new title"
+> article.description
+=> "this is the first article"
+-------------------code----------------------
+
+- so we need to use this "article = Article.find(the id form the url)"
+When I'm entering this ID in the URL, this is getting passed to my application using what's called
+the params hash and the params hash sends in the ID in hash format.
+to get it we use params hash keyword and grab which parameters we want
+-------------------code----------------------
+article = Article.find(params[:id])
+-------------------code----------------------
+
+- now the column id will have the value of wherever id we entered to the Url 
+
+- at this point we have access to the article variable in the show action so 
+technically we should be able to show that in our show view
+now before that we need to make our article variable accessible in the show view file 
+so we need to change to the instance variable
+-------------------code----------------------
+class ArticlesController < ApplicationController
+  def show
+    @article = Article.find(params[:id])
+  end
+end 
+-------------------code----------------------
+
+- now we can use article.title and article.description to display
+the contents of the article. 
+first we crete p with strong element for each title and description
+-------------------code----------------------
+<h1>Showing article details</h1>
+<p><strong>Title: </strong></p>
+<p><strong>Description: </strong></p>
+-------------------code----------------------
+
+- now if we try to use our code in the html.erb
+-------------------code----------------------
+<h1>Showing article details</h1>
+<p><strong>Title: </strong>@article.title</p>
+<p><strong>Description: </strong>@article.description</p>
+-------------------code----------------------
+
+the result we have 
+-------------------code----------------------
+Showing article details
+Title: @article.title
+
+Description: @article.description
+-------------------code----------------------
+
+- why?
+- cause the code is not evaluated as Ruby code and to make the html.erb read that as code 
+we have to use the embedded ruby tags
+ps:"<% %>" to evaluate the Ruby code and yet nothing show in the screen 
+-------------------code----------------------
+<h1>Showing article details</h1>
+<p><strong>Title: </strong><% @article.title %></p>
+<p><strong>Description: </strong><% @article.description %></p>
+-------------------code----------------------
+to show it we use the "=<% %>"
+-------------------code----------------------
+<h1>Showing article details</h1>
+<p><strong>Title: </strong><%= @article.title %></p>
+<p><strong>Description: </strong><%= @article.description %></p>
+-------------------code----------------------
+
+
+- our code works fine now let`s check how we receive our id in the article controller
+
+we're going to use a tool.
+It's called "debug" and our rails application came with it. and we can check the gem file to see it
+and what it will do is it'll
+pause my web server. and 
+-------------------code----------------------
+class ArticlesController < ApplicationController
+  def show
+    
+    @article = Article.find(params[:id])
+    debugger
+  end
+end
+-------------------code----------------------
+
+and it show us where we are in our code
+-------------------code----------------------
+1| class ArticlesController < ApplicationController
+     2|   def show
+     3|
+     4|     @article = Article.find(params[:id])
+=>   5|     debugger
+     6|   end
+     7| end
+-------------------code----------------------
+
+- now we can see the params 
+-------------------code----------------------
+(rdbg) params
+#<ActionController::Parameters {"controller"=>"articles", "action"=>"show", "id"=>"1"} permitted: false>
+-------------------code----------------------
+
+- and the params[:id]
+-------------------code----------------------
+params[:id]
+"1"
+-------------------code----------------------
+
+- now to get out from the debugger we use the continue
