@@ -1,0 +1,256 @@
+Ruby on Rails kickoff - Text directions and references
+Rails overview:
+
+https://guides.rubyonrails.org/
+
+https://rubyonrails.org/
+
+https://weblog.rubyonrails.org/
+
+Creator of Rails: David Heinemeier Hansson
+
+https://dhh.dk/
+
+Ruby meetups:
+
+https://www.meetup.com/topics/ruby/
+
+Online code repository hosting services:
+
+https://github.com/
+
+https://bitbucket.org/
+
+Devise gem GitHub repository:
+
+https://github.com/heartcombo/devise
+
+Gems for Ruby and Ruby on Rails:
+
+https://rubygems.org/
+
+
+
+Model, View, Controller and Rails App Structure - Text references
+MVC - Model, View, Controller
+
+General flow of Rails application:
+
+-> Request made at browser
+
+-> Request received at router of rails application
+
+-> Request routed to appropriate action in a controller
+
+-> Controller#action either renders a view template or communicates with model
+
+-> Model communicates with database
+
+-> Model sends back information to controller
+
+-> Controller renders view
+
+
+
+
+
+
+
+Root route, controller and more MVC - Text directions and references
+To set a root route, navigate to config/routes.rb file and enter in the following code ->
+
+root 'pages#home'
+
+In order to preview the application, you will need to start the rails server. You can start the server by navigating to the terminal and typing in the following command from your application directory followed by enter/return:
+
+rails server
+
+You can also type rails s for short. Once the server starts you can open up a browser window and type in localhost:3000 to preview the app. If you are using AWS cloud9, please use the videos in section 14 where previewing the applications are covered (after creating new rails apps using rails 5 and 6) since the preview link differs (it won't be localhost:3000).
+
+Back to the app, in order for the code to work there will need to be a pages controller and a home action within it.
+
+Create a pages controller by navigating to the terminal/command line and typing in the following command from your application directory:
+
+rails generate controller pages
+
+There should now be a pages_controller.rb file under app/controllers folder.
+
+Open up this file and add the home action to it with a rendering of 'Hello World!' like below:
+
+def home
+  render html: 'Hello World!'
+end
+Once you save this file and reload the browser preview, Hello World! should be displayed in the browser.
+
+In order to do this the conventional way using views remove the code within the home action and leave it as an empty method/action like below:
+
+def home
+end
+This will expect a home.html.erb template under the pages folder under views. This pages folder under the views folder was created when the pages controller was generated.
+
+Within this app/views/pages folder, create a new file called home.html.erb and add in the following code inside the file:
+
+Hello World!
+
+Once you save this file and preview it from the browser, it should still say Hello World! as expected.
+
+Congratulations, you have made your Rails application say 'Hello World!'
+
+
+
+Structure of a Rails application - Text references
+You can find the details of the individual folders in a Rails application (when it's created) here: https://guides.rubyonrails.org/getting_started.html
+
+Scroll down to section 3.2, skip the part about creating the new application and then you will find a listing of all the folders and their purpose in-depth.
+
+
+
+
+
+
+
+
+
+Git references:
+
+Official site: https://git-scm.com/
+
+Free online Pro Git book: https://git-scm.com/book/en/v2
+
+Reference manual: https://git-scm.com/docs
+
+Upon download and installation in your local machine (AWS Cloud9 comes pre-installed with Git), first time setup steps are required (only one time) for your git installation (for all environments):
+
+git config --global user.name "Your name"
+git config --global user.email youremail@example.com
+replace "Your name" and youremail@example.com above with your actual name and email address which you want shown on your repos.
+
+To display git config settings, use the following command:
+
+git config --list
+
+Some useful git commands:
+
+Your rails application already comes initialized with a Git repository. But if you have to initialize a git repository for an application you are working on, you can use the following command (do this from within the application directory):
+
+git init
+
+Note: if using Rails 5 or above, your application will already come with a git repository initiated, if you initiate a new one, it'll simply do the same step again.
+
+To add/track all files, use the following command:
+
+git add -A
+
+To commit changes/updates/additions to repository, use the following command:
+
+git commit -m "A useful message to help remember details of commit"
+
+To check current state of file updates with already tracked/committed code in repo, check git status with the following command:
+
+git status
+
+To reject latest changes, you can use the following command:
+
+git checkout -f
+
+Sites to create free online code repositories:
+
+github.com
+
+bitbucket.org
+
+
+
+Setup online code repo with Github - Text directions and references
+You can sign-up for a GitHub account at https://github.com/
+
+Once signed-up, you can follow the steps in the video to create a new repository for your application.
+
+If you chose SSH as the option to push existing repo, you will need to set up an SSH key unless you already have one.
+
+To display your public SSH key:
+
+cat ~/.ssh/id_rsa.pub
+
+If you don't have an SSH public key or are not sure, checkout the instructions here: https://help.github.com/en/github/authenticating-to-github/checking-for-existing-ssh-keys
+
+When creating a GitHub repo for your application, you can click on the SSH button, then push existing repo:
+
+git remote add origin git@github.com:yourgithubaccountname/test-app-6.git
+
+git push -u origin master # Remember you only need to use this command the first time
+
+To view remotes setup in your environment (from your app directory):
+
+git remote -v
+
+For future pushes to repository:
+
+git push origin master
+
+
+Learn and practice HTML and CSS references
+HTML basics: https://developer.mozilla.org/en-US/docs/Learn/Getting_started_with_the_web/HTML_basics
+
+CSS basics: https://developer.mozilla.org/en-US/docs/Learn/Getting_started_with_the_web/CSS_basics
+
+HTML tables: https://developer.mozilla.org/en-US/docs/Learn/HTML/Tables
+
+HTML forms: https://developer.mozilla.org/en-US/docs/Learn/Forms/Your_first_form
+
+Alternate resource to learn HTML and CSS together while building a website: https://learn.shayhowe.com/html-css/
+
+CRUD and scaffold generators - Text directions, references and code
+Query language to communicate with database: SQL (Structured Query Language)
+
+CRUD actions:
+
+C - Create
+
+R - Read
+
+U - Update
+
+D - Delete
+
+Scaffold generator command to create an article model (with two attributes), articles controller, views for articles and migration file to create articles table:
+
+rails generate scaffold Article title:string description:text
+
+Command to see routes presented in a viewer-friendly way:
+
+rails routes --expanded
+
+The line resources :articles in the config/routes.rb file provides the following routes:
+
+- index of articles (GET request)
+
+- new article (GET)
+
+- create article (POST)
+
+- edit article (GET)
+
+- update article (PUT and PATCH)
+
+- show article (GET)
+
+- delete article (DELETE)
+
+From UI perspective ->
+
+- index lists all the articles in the articles table in the database of the app
+
+- new article deals with the form to enter in new article details
+
+- create handles the submission of the items in the new article form
+
+- edit article deals with the form to enter edited information for an existing article
+
+- update article deals with the submission of the edit article form
+
+- show article displays an individual article based on selection
+
+- delete article deletes an article from the articles table
+
+In preparation for the next section, learn and practice SQL here: https://www.w3schools.com/sql/

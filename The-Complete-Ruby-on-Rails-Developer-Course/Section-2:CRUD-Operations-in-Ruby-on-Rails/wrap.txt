@@ -700,3 +700,4 @@ rails-app(dev)> Article.last
 -------------------code----------------------
 Article.last.destroy!
 -------------------code----------------------
+
