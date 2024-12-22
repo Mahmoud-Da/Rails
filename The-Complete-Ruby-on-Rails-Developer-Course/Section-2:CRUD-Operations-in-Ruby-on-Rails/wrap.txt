@@ -837,7 +837,7 @@ and now we test it
 
 - if we want to check the more validation we can check "Active Record validation"
 
-5- Show articles (route, action and view)
+*** 5- Show articles (route, action and view) ***
 we are going to show the articles in the database to the screen 
 
 step1: create a route
@@ -1067,3 +1067,156 @@ params[:id]
 -------------------code----------------------
 
 - now to get out from the debugger we use the continue
+
+*** 6-Articles index ***
+we will create the article list page by creating the index action
+
+now the same way in the img rails-architecture.png we recheck how the rails works
+
+first: we need to define the index route so first we comment the only section to check what the index 
+routes look like 
+-------------------code----------------------
+resources :articles #, only: [:show]
+-------------------code----------------------
+
+- now we type the rails command to check the routes
+-------------------code----------------------
+rails routes --expanded
+-------------------code----------------------
+
+- then search on the index
+-------------------code----------------------
+--[ Route 4 ]-------------------------------------------------------------------------------------------------------------------------------------------
+Prefix            | articles
+Verb              | GET
+URI               | /articles(.:format)
+Controller#Action | articles#index
+Source Location   | rails-app/config/routes.rb:15
+-------------------code----------------------
+
+
+- we can see that the Controller#Action is index and the URL to access it is /articles
+
+- now we add to the only the index keyword
+-------------------code----------------------
+resources :articles , only: [:index, :show]
+-------------------code----------------------
+
+- now rails will expect the index action in our controller
+so we create the index action 
+-------------------code----------------------
+def index
+    
+end
+-------------------code----------------------
+
+- next rails expect that there is view/articles/index.html.erb so we created
+and the same as show.html.erb we create a header with h1
+-------------------code----------------------
+<h1>Articles list pages</h1>
+-------------------code----------------------
+
+- next we start our server and access 
+-------------------code----------------------
+http://localhost:3000/articles
+-------------------code----------------------
+
+now we can`t see the data cause the index action is empty
+so to grab all the articles we use same as rails console
+so in rails console 
+and then we can iterate through each one using a dot each code.
+-------------------code----------------------
+> Article.all
+  Article Load (4.5ms)  SELECT "articles".* FROM "articles" /* loading for pp */ LIMIT 11 /*application='RailsApp'*/
+=>
+[#<Article:0x000000010e190578
+  id: 1,
+  title: "new title",
+  description: "this is the first article",
+  created_at: "2024-12-17 10:56:55.496899000 +0000",
+  updated_at: "2024-12-18 10:53:32.363168000 +0000",
+  publisher: nil>,
+ #<Article:0x000000010e4d8d48
+  id: 2,
+  title: "second article",
+  description: "this is the second article",
+  created_at: "2024-12-17 12:31:51.612805000 +0000",
+  updated_at: "2024-12-17 12:31:51.612805000 +0000",
+  publisher: nil>,
+ #<Article:0x000000010e4d8c08
+  id: 5,
+  title: "test",
+  description: "test description",
+  created_at: "2024-12-21 07:36:28.069685000 +0000",
+  updated_at: "2024-12-21 07:36:28.069685000 +0000",
+  publisher: nil>,
+ #<Article:0x000000010e4d8ac8
+  id: 6,
+  title: "a",
+  description: "b",
+  created_at: "2024-12-21 07:38:31.073428000 +0000",
+  updated_at: "2024-12-21 07:38:31.073428000 +0000",
+  publisher: nil>]
+-------------------code----------------------
+
+- in the index action we create @articles (plural cause we save inside it multi articles)instance 
+PS: this needs to be an instance variable here because we need it available in our views.
+-------------------code----------------------
+def index
+  @articles = Article.all
+end
+-------------------code----------------------
+
+- next we create a table in our view to display the data of all articles
+"table>thead>tr>th*3"
+-------------------code----------------------
+<table>
+  <thead>
+    <tr>
+      <th></th>
+      <th></th>
+      <th></th>
+    </tr>
+  </thead>
+</table>
+-------------------code----------------------
+
+- we fill it 
+-------------------code----------------------
+<table>
+  <thead>
+    <tr>
+      <th>Title</th>
+      <th>Description</th>
+      <th>Actions</th>
+    </tr>
+  </thead>
+</table>
+-------------------code----------------------
+then under the thead we create 
+"tbody>tr>td*3"
+-------------------code----------------------
+<table>
+  <thead>
+    <tr>
+      <th>Title</th>
+      <th>Description</th>
+      <th>Actions</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td></td>
+      <td></td>
+      <td></td>
+    </tr>
+  </tbody>
+</table>
+-------------------code----------------------
+
+- then we use the each method 
+PS: with for or each method we use "<% %>" and with showing the data we use 
+"=<% %>"
+-------------------code----------------------
+
+-------------------code----------------------
