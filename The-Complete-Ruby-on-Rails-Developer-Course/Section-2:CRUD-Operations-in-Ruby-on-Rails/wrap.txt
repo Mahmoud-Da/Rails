@@ -1408,4 +1408,152 @@ the server stop and if we write the params we can see
 #<ActionController::Parameters {"authenticity_token"=>"oTBjWdSXmgGYcNYuBLI67S6m-T5zKw_i_7mgHKK2KO_NSGqaMdhKOfXNCo8vUtXr3ZJqgI47dcWqs1W9xHgucw", "article"=>{"title"=>"test", "description"=>"test"}, "commit"=>"Create Article", "controller"=>"articles", "action"=>"create"} permitted: false>
 -------------------code----------------------  
 
+- and now we can see the data which is post to the server 
+-------------------code----------------------  
+params[:article]
+#<ActionController::Parameters {"title"=>"test", "description"=>"test1"} permitted: false>
+-------------------code----------------------
 
+*** 8-Create action - save newly created articles ***
+now what we do is to save the value of the params of article to the database
+now tha value of the params[:article] is 
+-------------------code----------------------
+{"title"=>"test", "description"=>"test1"}
+-------------------code----------------------
+
+if we go to rails console we can type like
+-------------------code---------------------- 
+article = Article.new({"title"=>"test", "description"=>"test1"})
+-------------------code----------------------
+
+- now if check the article it save to the memory correctly
+-------------------code----------------------
+> article
+=> #<Article:0x0000000109c76ff0 id: nil, title: "test", description: "test1", created_at: nil, updated_at: nil, publisher: nil>
+-------------------code----------------------
+
+now we can do the same thing with our action
+instead of article we use @article 
+and instead of {"title"=>"test", "description"=>"test1"} we use params[:article]
+-------------------code----------------------
+def create
+  @article = Article.new(params[:article])
+end
+-------------------code----------------------
+
+- now if we try on the form to press create Article after set the the values
+we got error 
+-------------------code----------------------
+ActiveModel::ForbiddenAttributesError
+-------------------code----------------------
+
+- cause what we called strong parameter in rails 
+-------------------code----------------------
+strong parameters is a feature that helps prevent mass assignment vulnerabilities by requiring you to explicitly specify which parameters are allowed to be used in your model. This is particularly important when dealing with user input, as it helps ensure 
+that only the expected attributes are permitted for mass assignment.
+
+1. Mass Assignment Vulnerability: Before strong parameters, Rails allowed mass assignment of attributes, which could lead to security issues if a user could modify attributes that they shouldn't have access to (e.g., admin flags, role attributes, etc.).
+2. Permitting Parameters: With strong parameters, you define a method in your controller that specifies which parameters are allowed. This is done using the permit method.
+3. Usage: Strong parameters are typically used in the create and update actions of your controllers to ensure that only the specified attributes are allowed to be saved to the database.
+
+Benefits of Strong Parameters
+1- Security: By explicitly permitting parameters, you reduce the risk of mass assignment vulnerabilities.
+2- Clarity: It makes your code clearer by showing which parameters are expected and allowed for each action.
+3- Maintainability: If you need to change which parameters are allowed, you can do so in one place (the strong parameters method).
+
+Summary
+Strong parameters are an essential part of Rails applications that help ensure the security and integrity of your data by requiring explicit permission for mass assignment of model attributes. This feature is a best practice in Rails development and is crucial for building secure applications.
+-------------------code----------------------
+
+- so to apply user to send this data to the database we use the require with the 
+model name and we use the permit to allow which parameter to allow to user 
+to insert on our database on our case the title and the description
+-------------------code----------------------
+def create
+  @article = Article.new(params.require(:article).permit(:title, :description))
+end
+-------------------code----------------------
+
+- next to check the @article we use debugger
+-------------------code----------------------
+def create
+  @article = Article.new(params.require(:article).permit(:title, :description))
+  debugger
+end
+-------------------code----------------------
+
+- and we can see we got an article object
+-------------------code----------------------
+(ruby) @article
+#<Article:0x000000011a45ac98 id: nil, title: "test", description: "test1", created_at: nil, updated_at: nil, publisher: nil>
+-------------------code----------------------
+
+- we can see the id is nil which means the data is in the memory but not saved to the 
+database yet so we  save the article
+-------------------code----------------------
+def create
+  @article = Article.new(params.require(:article).permit(:title, :description))
+  @article.save
+end
+-------------------code----------------------
+
+
+- now if jump out to our console we can see it created 
+we can see the last record in the database
+-------------------code----------------------
+Article.last
+  Article Load (0.9ms)  SELECT "articles".* FROM "articles" ORDER BY "articles"."id" DESC LIMIT 1 /*application='RailsApp'*/
+=>
+#<Article:0x0000000106594898
+ id: 12,
+ title: "Title 1234",
+ description: "Description 1234",
+ created_at: "2024-12-28 07:46:47.607347000 +0000",
+ updated_at: "2024-12-28 07:46:47.607347000 +0000",
+ publisher: nil>
+-------------------code----------------------
+
+- now after the saving nothing is happens on the screen  
+now after the saving we want it to go to another page to do the we use the "redirect_to" + the path to that 
+page 
+in our case we want to go the show  so using the routes command 
+-------------------code----------------------
+Prefix            | article
+Verb              | GET
+URI               | /articles/:id(.:format)
+Controller#Action | articles#show
+Source Location   | rails-app/config/routes.rb:15
+-------------------code----------------------
+
+- and we see the prefix which means if we want to use the prefix we have to article with the path keyword
+-------------------code----------------------
+article_path
+-------------------code----------------------
+
+- so the create action become like this 
+-------------------code----------------------
+def create
+  @article = Article.new(params.require(:article).permit(:title, :description))
+  if @article.save
+    redirect_to article_path(@article)
+  end
+end
+-------------------code----------------------
+
+So what Rails is going to do is extract the ID from this at article object @article.
+This article instance variable, and then use it to form the path.
+so it will be for an example redirect_to article_path(23) 23 is the id of the created article
+
+and there is a shortcut instead of using article_path(@article) we can use @article only 
+and test our code 
+-------------------code----------------------
+def create
+  @article = Article.new(params.require(:article).permit(:title, :description))
+  if @article.save
+    redirect_to @article
+  end
+end
+-------------------code----------------------
+
+- until now the code works properly, but we have one problem if the data 
+that we submit the form has validation error it will not show to user the why is not saved
