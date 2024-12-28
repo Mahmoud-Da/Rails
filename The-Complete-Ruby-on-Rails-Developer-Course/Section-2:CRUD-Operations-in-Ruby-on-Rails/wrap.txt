@@ -1218,5 +1218,194 @@ then under the thead we create
 PS: with for or each method we use "<% %>" and with showing the data we use 
 "=<% %>"
 -------------------code----------------------
-
+<tbody>
+  <% @articles.each do |article| %>
+    <tr>
+    <td><%= article.title %></td>
+    <td><%= article.description %></td>
+    <td>PlaceHolder</td>
+  </tr>
+  <% end %>
+</tbody>
 -------------------code----------------------
+
+*** 7-Forms - build a new article creation form ***
+we will create an article form with title and description
+
+- first in the routes.rb we will add new and create 
+-------------------code----------------------
+resources :articles , only: [:index, :show, :new, :create]
+-------------------code----------------------
+
+******************************************************************************************************
+New Vs Create Action:
+New Action: 
+Purpose: The new action is used to display a form for creating a new resource. It does not actually create the resource in the database.
+HTTP Method: Typically responds to a GET request.
+View: It renders a view (e.g., new.html.erb) that contains the form for the user to fill out.
+
+Create:
+Purpose: The create action is responsible for processing the form submission and actually creating the new resource in the database.
+HTTP Method: Typically responds to a POST request.
+Form Submission: When the form from the new action is submitted, it sends the data to the create action.
+Saving the Object: In the create action, you take the parameters from the form, build a new object, and attempt to save it to the database 
+Redirect or Render: After attempting to save, you usually redirect to another action (like index or show) if successful, or render the new view again if there are validation errors.
+
+Summary
+new: Displays the form for creating a new resource.
+create: Processes the form submission and creates the resource in the database.
+******************************************************************************************************
+
+
+
+- we check the routes 
+-------------------code----------------------
+rails routes --expanded
+-------------------code----------------------
+
+- we have this new actions in our routes
+-------------------code----------------------
+--[ Route 5 ]-------------------------------------------------------------------------------------------------------------------------------------------
+Prefix            |
+Verb              | POST
+URI               | /articles(.:format)
+Controller#Action | articles#create
+Source Location   | rails-app/config/routes.rb:15
+--[ Route 6 ]-------------------------------------------------------------------------------------------------------------------------------------------
+Prefix            | new_article
+Verb              | GET
+URI               | /articles/new(.:format)
+Controller#Action | articles#new
+Source Location   | rails-app/config/routes.rb:15
+-------------------code----------------------
+
+- next we build this two actions
+-------------------code----------------------
+def new
+
+end
+
+def create
+
+end
+-------------------code----------------------
+
+
+- new we create our views new.html.erb
+-------------------code----------------------
+<h1>Create a new Article</h1>
+-------------------code----------------------
+PS: in Rails, you typically create .html.erb view files for actions that respond to GET requests
+
+Summary
+GET Actions: Have corresponding .html.erb view files to render HTML.
+POST, PATCH, and DELETE Actions: Do not have separate view files; they process data from forms submitted from other views.
+This structure helps maintain a clear separation of concerns in your Rails application, ensuring that each action has a specific purpose and that views are only created for actions that need to render HTML content.
+
+- now we run our server and access to the 
+-------------------code----------------------
+http://localhost:3000/articles/new
+-------------------code----------------------
+
+- next we create the form to that we can go rails guide 
+https://guides.rubyonrails.org/form_helpers.html
+
+-  will use form_with 
+PS: according the the rails guide rails8
+Before form_with was introduced in Rails 5.1 its functionality was split between form_tag and form_for. Both are now discouraged in favor of form_with, 
+but you can still find being used in some codebases.
+
+- now we use the form_with according to the rails guide
+-------------------code----------------------
+<%= form_with model: @book do |form| %>
+  <div>
+    <%= form.label :title %>
+    <%= form.text_field :title %>
+  </div>
+  <div>
+    <%= form.label :author %>
+    <%= form.text_field :author %>
+  </div>
+  <%= form.submit %>
+<% end %>
+-------------------code----------------------
+
+now if we go to http://localhost:3000/articles/new we got error 
+-------------------code----------------------
+ails-app/app/views/articles/new.html.erb where line #2 raised:
+
+Passed nil to the :model argument, expect an object or false
+Extracted source (around line #2):
+
+              
+<h1>Create a new Article</h1>
+<%= form_with model: @article do |form| %>
+  <div>
+    <%= form.label :title %>
+    <%= form.text_field :title %>
+  </div>
+-------------------code----------------------
+
+cause @article is not defined in the articles controller
+so we add it 
+in rails console we we create instance by using Article.new
+so in the controller we add
+-------------------code----------------------
+def new
+  @article = Article.new
+end
+-------------------code----------------------
+
+- now to make our add <br/> to give our form a space 
+-------------------code----------------------
+<h1>Create a new Article</h1>
+<%= form_with model: @article do |form| %>
+  <div>
+    <%= form.label :title %>
+    <br/>
+    <%= form.text_field :title %>
+    
+  </div>
+  <br/>
+  <div>
+    <%= form.label :description %>
+    <br/>
+    <%= form.text_field :description %>
+  </div>
+  <br/>
+  <%= form.submit %>
+<% end %>
+-------------------code----------------------
+
+
+- now let`s try to save this form by creating an example data
+and we click on "save Article" nothing happens
+and if we check the server we can see it starting post 
+-------------------code----------------------
+Started POST "/articles" for ::1 at 2024-12-28 15:17:17 +0900
+Processing by ArticlesController#create as TURBO_STREAM
+  Parameters: {"authenticity_token"=>"[FILTERED]", "article"=>{"title"=>"test", "description"=>"test"}, "commit"=>"Create Article"}
+No template found for ArticlesController#create, rendering head :no_content
+Completed 204 No Content in 29ms (ActiveRecord: 0.0ms (0 queries, 0 cached) | GC: 0.0ms)
+-------------------code----------------------
+
+- but we have 
+-------------------code----------------------
+No template found for ArticlesController#create, rendering head :no_content
+-------------------code----------------------
+
+- cause it submitting to our create action but the create action does`nt have any code inside it
+now we will use "debugger" to stop the server at the create and inspect 
+-------------------code----------------------
+def create
+   debugger
+end
+-------------------code----------------------  
+
+- now we press the "create Article" again
+the server stop and if we write the params we can see 
+-------------------code----------------------  
+#<ActionController::Parameters {"authenticity_token"=>"oTBjWdSXmgGYcNYuBLI67S6m-T5zKw_i_7mgHKK2KO_NSGqaMdhKOfXNCo8vUtXr3ZJqgI47dcWqs1W9xHgucw", "article"=>{"title"=>"test", "description"=>"test"}, "commit"=>"Create Article", "controller"=>"articles", "action"=>"create"} permitted: false>
+-------------------code----------------------  
+
+
