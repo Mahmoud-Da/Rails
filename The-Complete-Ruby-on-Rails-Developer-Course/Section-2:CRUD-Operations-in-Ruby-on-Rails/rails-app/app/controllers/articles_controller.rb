@@ -13,9 +13,15 @@ class ArticlesController < ApplicationController
   end
 
   def create
+    
     @article = Article.new(params.require(:article).permit(:title, :description))
     if @article.save
+      flash[:notice] = "Article was created successfully"
       redirect_to @article
+    else 
+      flash[:alert] = "Article created failed"
+      puts @article.errors.full_messages
+      render :new
     end
   end
 end
