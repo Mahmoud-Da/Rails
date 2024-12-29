@@ -1622,3 +1622,255 @@ end
 </body>
 -------------------code----------------------
 
+*** 11-Edit and update: update existing articles ***
+now we will edit an exist record using edit and update actions 
+
+- first we need to add edit and update routes
+-------------------code----------------------
+resources :articles , only: [:index, :show, :new, :create, :edit, :update]
+-------------------code----------------------
+
+- using the rails routes --expanded we can check the edit and update routes
+for edit route we can see the method is get so it will display the data on our browser
+
+-------------------code----------------------
+--[ Route 7 ]-------------------------------------------------------------------------------------------------------------------------------------------
+Prefix            | edit_article
+Verb              | GET
+URI               | /articles/:id/edit(.:format)
+Controller#Action | articles#edit
+Source Location   | rails-app/config/routes.rb:15
+--[ Route 9 ]-------------------------------------------------------------------------------------------------------------------------------------------
+Prefix            |
+Verb              | PATCH
+URI               | /articles/:id(.:format)
+Controller#Action | articles#update
+Source Location   | rails-app/config/routes.rb:15
+--[ Route 10 ]------------------------------------------------------------------------------------------------------------------------------------------
+Prefix            |
+Verb              | PUT
+URI               | /articles/:id(.:format)
+Controller#Action | articles#update
+Source Location   | rails-app/config/routes.rb:15
+-------------------code----------------------
+
+
+- now we check the edit routes 
+/articles/:id/edit and replace the id with an existed id in our database 
+-------------------code----------------------
+http://localhost:3000/articles/1/edit
+-------------------code----------------------
+
+- we got so the route is working
+-------------------code----------------------
+The action 'edit' could not be found for ArticlesController
+-------------------code----------------------
+
+- for the update according to the newest Rails standards, PATCH is used to update the record, while PUT is also available but less commonly used for this purpose.
+
+******************************************************************************************************
+PUT vs PATCH
+1. Definition:
+PUT: The PUT method is used to update a resource by replacing it entirely with the new representation provided in the request. If the resource does not exist, it can create a new resource at the specified URI.
+PATCH: The PATCH method is used to apply partial modifications to a resource. It updates only the fields that are specified in the request body, leaving the other fields unchanged.
+2. Usage:
+PUT:
+Typically used when you want to replace an entire resource.
+Example: If you have a user object with fields like name, email, and age, a PUT request would require you to send all these fields even if only one of them has changed.
+PATCH:
+Used when you want to update only specific fields of a resource.
+Example: If you only want to update the email of a user, you can send a PATCH request with just the email field.
+Idempotency:
+PUT: PUT is idempotent, meaning that making the same PUT request multiple times will have the same effect as making it once. If you send the same data again, it will not change the resource further.
+PATCH: PATCH is also idempotent, but it can be non-idempotent depending on the implementation. For example, if a PATCH request increments a value, sending it multiple times will yield different results.
+Request Body:
+PUT: Requires the complete representation of the resource in the request body.
+PATCH: Requires only the fields that need to be updated in the request body.
+Example:
+PUT Example:
+-------------------code----------------------
+ PUT /users/1
+  Content-Type: application/json
+
+  {
+    "name": "John Doe",
+    "email": "john@example.com",
+    "age": 30
+  }
+-------------------code----------------------
+
+PATCH Example:
+-------------------code----------------------
+  PATCH /users/1
+  Content-Type: application/json
+
+  {
+    "email": "john.doe@example.com"
+  }
+-------------------code----------------------
+
+Summary:
+Use PUT when you want to replace an entire resource.
+Use PATCH when you want to make partial updates to a resource.
+******************************************************************************************************
+
+
+
+- now we add the edit action (the action order the action with get method up and POST and PUT/PATCH and DELETE is down )
+-------------------code----------------------
+def edit
+
+end
+
+def update 
+
+end
+-------------------code----------------------
+
+- now if go to the 
+-------------------code----------------------
+http://localhost:3000/articles/1/edit
+-------------------code----------------------
+
+- we have error 
+-------------------code----------------------
+ArticlesController#edit is missing a template for request formats: text/html
+-------------------code----------------------
+
+- so we go to create the views/articles/edit_html.erb
+and it will be similar to our new_html.erb form so we will copy it and change only the title
+
+-------------------code----------------------
+<h1>Edit a new Article</h1>
+<% if @article.errors.any? %>
+  <h2>The following errors prevented the article from being saved</h2>
+  <ul>
+    <% @article.errors.full_messages.each do |msg| %>
+      <li><%= msg %></li>
+    <% end %>
+  </ul>
+<% end %>
+
+<%= form_with model: @article do |form| %>
+  <div>
+    <%= form.label :title %>
+    <br/>
+    <%= form.text_field :title %>
+    
+  </div>
+  <br/>
+  <div>
+    <%= form.label :description %>
+    <br/>
+    <%= form.text_field :description %>
+  </div>
+  <br/>
+  <%= form.submit %>
+<% end %>
+-------------------code----------------------
+
+
+- and now if we reload the page 
+-------------------code----------------------
+http://localhost:3000/articles/1/edit
+-------------------code----------------------
+
+-  we got 
+-------------------code----------------------
+undefined method `errors' for nil:NilClass
+Extracted source (around line #2):
+
+              
+<h1>Edit a new Article</h1>
+<% if @article.errors.any? %>
+  <h2>The following errors prevented the article from being saved</h2>
+  <ul>
+    <% @article.errors.full_messages.each do |msg| %>
+      <li><%= msg %></li>
+-------------------code----------------------
+
+- cause we need to define an article 
+in the rails console we want to look for an record 
+we type article = Article.find(i) 
+so we do the same thing in our controller
+-------------------code----------------------
+def edit
+  @article = Article.find(params[:id])
+end
+-------------------code----------------------
+
+- now we if click on the button Update article nothing happens cause the 
+update action is empty and we can see that in our rails server 
+-------------------code----------------------
+No template found for ArticlesController#update, rendering head :no_content
+Completed 204 No Content in 40ms (ActiveRecord: 0.0ms (0 queries, 0 cached) | GC: 0.0ms)
+-------------------code----------------------
+
+- now we debug our update action to see how we can write it
+-------------------code----------------------
+def update 
+  debugger
+end
+-------------------code----------------------
+
+now if check the params 
+-------------------code----------------------
+roller.rb
+    26|       render :new
+    27|     end
+    28|   end
+    29|
+    30|   def update
+=>  31|     debugger
+    32|   end
+    33| end
+=>#0	ArticlesController#update at ~/moody/Rails/The-Complete-Ruby-on-Rails-Developer-Course/Section-2:CRUD-Operations-in-Ruby-on-Rails/rails-app/app/controllers/articles_controller.rb:31
+  #1	ActionController::BasicImplicitRender#send_action(method="update", args=[]) at ~/.rbenv/versions/3.2.2/lib/ruby/gems/3.2.0/gems/actionpack-8.0.1/lib/action_controller/metal/basic_implicit_render.rb:8
+  # and 76 frames (use `bt' command for all frames)
+(rdbg) params
+#<ActionController::Parameters {"_method"=>"patch", "authenticity_token"=>"7jz2GPM-2mkKShKu04iUOz6zvxEhhnZsBfJb-v2P7aBi9FwZ05-7w2KNZA8b8MpKM5HxFjRJBtpe1Q5SY4WB9A", "article"=>{"title"=>"update title ", "description"=>"update Description"}, "commit"=>"Update Article", "controller"=>"articles", "action"=>"update", "id"=>"1"} permitted: false>
+-------------------code----------------------
+
+- we can see the the value of params is the updated values
+
+- now to apply this new values to our database first we get this record using the id 
+-------------------code----------------------
+def update 
+    @article = Article.find(params[:id])
+    debugger
+end
+-------------------code----------------------
+
+we can test in the debugger
+-------------------code----------------------
+(ruby) @article = Article.find(params[:id])
+  Article Load (0.3ms)  SELECT "articles".* FROM "articles" WHERE "articles"."id" = 1 LIMIT 1 /*action='update',application='RailsApp',controller='articles'*/
+  ↳ (rdbg)//Users/mahmouddabbbagh/moody/Rails/The-Complete-Ruby-on-Rails-Developer-Course/Section-2:CRUD-Operations-in-Ruby-on-Rails/rails-app/app/controllers/articles_controller.rb:1:in `update'
+#<Article:0x000000010697d658
+ id: 1,
+ title: "new title",
+ description: "this is the first article",
+ created_at: "2024-12-17 10:56:55.496899000 +0000",
+ updated_at: "2024-12-18 10:53:32.363168000 +0000",
+ publisher: nil>
+-------------------code----------------------
+
+- next we use the update method and same as create action we use the permit method 
+-------------------code----------------------
+@article.update(params.require(:article).permit(:title, :description))
+-------------------code----------------------
+
+- next we add it between if statement to see if the record is updated else we return 
+to the current page which is edit 
+-------------------code----------------------
+def update 
+    @article = Article.find(params[:id])
+    if @article.update(params.require(:article).permit(:title, :description))
+      flash[:notice] = "Article was updated successfully"
+      redirect_to @article
+    else 
+      flash[:alert] = "Article updated failed"
+      render :edit
+    end
+  end
+-------------------code----------------------
