@@ -1622,7 +1622,7 @@ end
 </body>
 -------------------code----------------------
 
-*** 11-Edit and update: update existing articles ***
+*** 10-Edit and update: update existing articles ***
 now we will edit an exist record using edit and update actions 
 
 - first we need to add edit and update routes
@@ -1874,3 +1874,129 @@ def update
     end
   end
 -------------------code----------------------
+
+
+*** 11- Delete: delete articles ***
+we will delete an existing record by using the destroy action 
+in the route we add destroy route 
+-------------------code----------------------
+resources :articles , only: [:index, :show, :new, :create, :edit, :update, :destroy]
+-------------------code----------------------
+
+but now we have all the related resources of restful api (7 routes)to article so we no longer need the only keyword
+-------------------code----------------------
+resources :articles
+-------------------code----------------------
+
+
+******************************************************************************************************
+A RESTful API (Representational State Transfer API) is a web service that adheres to the principles of REST architecture, which is an architectural style for designing networked applications. 
+RESTful APIs use standard HTTP methods and are designed to be stateless, scalable, and cacheable.
+Here are the key concepts and characteristics of RESTful APIs:
+Key Concepts of RESTful APIs
+1. Resources:
+In REST, everything is considered a resource, which can be any entity such as users, articles, products, etc. Each resource is identified by a unique URI (Uniform Resource Identifier).
+
+2. HTTP Methods: (CRUD Action)
+RESTful APIs use standard HTTP methods to perform operations on resources:
+GET: Retrieve a resource or a collection of resources.
+POST: Create a new resource.
+PUT: Update an existing resource or create it if it does not exist.
+PATCH: Partially update an existing resource.
+DELETE: Remove a resource.
+
+3. Statelessness:
+Each request from a client to a server must contain all the information needed to understand and process the request. The server does not store any client context between requests, making the API stateless.
+Representation:
+Resources can have multiple representations, such as JSON, XML, or HTML. Clients interact with resources through these representations, typically using JSON for web APIs.
+
+5. Uniform Interface:
+RESTful APIs have a uniform interface that simplifies and decouples the architecture, allowing different clients to interact with the API in a consistent manner. This includes using standard HTTP methods, status codes, and media types.
+
+6.Stateless Communication:
+Each request is independent, and the server does not retain any session information. This allows for better scalability and reliability.
+
+7. Cacheable:
+Responses from the server can be marked as cacheable or non-cacheable, allowing clients to cache responses to improve performance and reduce server load.
+
+Example of RESTful API Endpoints
+Using the routes defined in your provided code snippet, here’s how a RESTful API for articles might look:
+GET /articles: Retrieve a list of articles.
+GET /articles/:id: Retrieve a specific article by ID.
+POST /articles: Create a new article.
+PUT /articles/:id: Update an existing article by ID.
+PATCH /articles/:id: Partially update an existing article by ID.
+DELETE /articles/:id: Delete an article by ID.
+
+Benefits of RESTful APIs
+- Scalability: Statelessness and the use of standard protocols make RESTful APIs highly scalable.
+- Flexibility: Clients can interact with the API in various ways, and the API can evolve without breaking existing clients.
+- Interoperability: RESTful APIs can be consumed by any client that understands HTTP, making them platform-independent.
+- Simplicity: The use of standard HTTP methods and status codes simplifies the design and implementation of APIs.
+
+Conclusion
+RESTful APIs are widely used in web development due to their simplicity, scalability, and flexibility. They allow different systems to communicate over the web in a standardized way, making it easier to build and integrate applications.
+******************************************************************************************************
+
+- now we create the destroy action 
+we will find this article and destroy it then redirect to the index page
+-------------------code----------------------
+def destroy
+  @article = Article.find(params[:id])
+  @article.destroy
+  redirect_to articles_path
+end
+-------------------code----------------------
+
+- next we want to add link to the index page next to each article 
+that integrate with destroy action
+-------------------code----------------------
+td><%= article.title %></td>
+<td><%= article.description %></td>
+<td><%= link_to "Delete", "#" %></td>
+-------------------code----------------------
+
+- if hover the mouse on the Delete link we can see in the left down of the screen 
+-------------------code----------------------
+http://localhost:3000/articles#
+-------------------code----------------------
+
+- so we need to set that to the destroy action URL  
+-------------------code----------------------
+<td><%= link_to "Delete", article_path(article) %></td>
+-------------------code----------------------
+
+now if we hover on it we see the url like this 
+-------------------code----------------------
+http://localhost:3000/articles/1
+-------------------code----------------------
+
+- and if we click it it well take us to the show page of that record
+why ?
+cause the URI of the show and delete routes are the same 
+-------------------code----------------------
+URI               | /articles/:id(.:format) 
+-------------------code----------------------
+- so we fix that by adding the Verb (HTTP Method)
+
+-------------------code----------------------
+<td><%= button_to "Delete", article_path(article), method: :delete %></td>
+-------------------code----------------------
+PS: we add button_to cause delete method only works with button_to  
+
+
+- and now we add the show link 
+-------------------code----------------------
+<td><%= link_to "Show", article_path(article) %></td>
+<td><%= button_to "Delete", article_path(article), method: :delete %></td>
+-------------------code----------------------
+
+- finally we add the link back to the show.html.erb
+-------------------code----------------------
+<h1>Showing article details</h1>
+<p><strong>Title: </strong><%= @article.title %></p>
+<p><strong>Description: </strong><%= @article.description %></p>
+<p><%= link_to "Back", articles_path %></p>
+-------------------code----------------------
+
+
