@@ -1557,3 +1557,68 @@ end
 
 - until now the code works properly, but we have one problem if the data 
 that we submit the form has validation error it will not show to user the why is not saved
+
+*** 9-Messaging - validation and flash messages ***
+- now we want  to show the validation error if there is an error
+now inside the console we try to create invalid data
+-------------------code----------------------  
+> article = Article.new(title: "1", description: "2")
+=> #<Article:0x00000001059adb38 id: nil, title: "1", description: "2", created_at: nil, updated_at: nil, publisher: nil>
+> article.save
+=> false
+-------------------code----------------------
+
+- we can see the message using the errors.full_messages
+-------------------code----------------------
+> article.errors.full_messages
+=> ["Title is too short (minimum is 6 characters)", "Description is too short (minimum is 10 characters)"]
+-------------------code----------------------
+
+so how we show each one we use each method
+-------------------code----------------------
+> article.errors.full_messages.each do |msg|
+*   puts msg
+> end
+Title is too short (minimum is 6 characters)
+Description is too short (minimum is 10 characters)
+=> ["Title is too short (minimum is 6 characters)", "Description is too short (minimum is 10 characters)"]
+-------------------code----------------------
+
+- so we use the same pattern in our new.html.erb
+-------------------code----------------------
+<% if @article.errors.any? %>
+ <h2>The following errors prevent the article from being saved</h2>
+ <ul>
+  <% @article.errors.full_messages.each do |msg| %>
+   <li><%= msg %></li>
+  <% end %>
+ </ul>
+<% end %>
+-------------------code----------------------
+
+
+- now we test our code 
+
+- last thing we set flash of notice of the article is created 
+-------------------code----------------------
+def create
+  @article = Article.new(params.require(:article).permit(:title, :description))
+  if @article.save
+    flash[:notice] = "Article was created successfully"
+    redirect_to @article
+  else 
+    render :new
+  end
+end
+-------------------code----------------------
+
+- and sense we want to show the flash in all our pages so we cgo to the layout/application.html.erb
+-------------------code----------------------
+<body>
+  <% flash.each do |name, msg| %>
+    <%= msg %>
+  <% end %>
+  <%= yield %>
+</body>
+-------------------code----------------------
+
