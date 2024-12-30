@@ -17,3 +17,7 @@
   <br/>
   <%= form.submit %>
 <% end %>
+<p>
+  <td><%= button_to "Delete", article_path(@article), method: :delete, data: {turbo_confirm: "Are You Sure?"}  %></td>
+  <%= link_to "Back To Articles", articles_path%>
+</p>
