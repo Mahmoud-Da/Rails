@@ -2000,3 +2000,88 @@ PS: we add button_to cause delete method only works with button_to
 -------------------code----------------------
 
 
+*** 12-User Interface - add layout links ***
+-  we will add the edit link 
+
+- first we access the route
+-------------------code----------------------
+rails routes --expanded
+-------------------code----------------------
+
+- and we can see the edit route
+-------------------code----------------------
+--[ Route 7 ]-------------------------------------------------------------------------------------------------------------------------------------------
+Prefix            | edit_article
+Verb              | GET
+URI               | /articles/:id/edit(.:format)
+Controller#Action | articles#edit
+Source Location   | rails-app/config/routes.rb:15
+-------------------code----------------------
+
+- and we add it to the index page
+-------------------code----------------------
+<td><%= link_to "Show", article_path(article) %></td>
+<td><%= link_to "Edit", edit_article_path(article) %></td>
+<td><%= button_to "Delete", article_path(article), method: :delete %></td>
+-------------------code----------------------
+
+- now our links and button is not arrange properly under the Action keyword
+to fix that we use colspan with the number of our buttons
+-------------------code----------------------
+<th colspan="3" >Actions</th>
+-------------------code----------------------
+
+- next we will add "Create new article" button" 
+so go to routes to check the new action path 
+-------------------code----------------------
+--[ Route 6 ]-------------------------------------------------------------------------------------------------------------------------------------------
+Prefix            | new_article
+Verb              | GET
+URI               | /articles/new(.:format)
+Controller#Action | articles#new
+Source Location   | rails-app/config/routes.rb:15
+-------------------code----------------------
+
+- next we add it below 
+-------------------code----------------------
+<p>
+  <%= link_to "Create New Article", new_article_path %> 
+</p>
+-------------------code----------------------
+
+
+- next in our show file we will but the button for edit and back to the articles and delete
+-------------------code----------------------
+<%= link_to "Edit", edit_article_path(@article) %>
+<%= button_to "Delete", article_path(@article), method: :delete, data: { turbo_confirm: "Are you sure you want to delete this article?" } %>
+<%= link_to "Return to The articles", articles_path %> 
+-------------------code----------------------
+
+- and we add the same confirm inside the index.html.erb 
+PS: in rails 7 and 8 we use "turbo_confirm" instead of "confirm"
+-------------------code----------------------
+<% @articles.each do |article| %>
+  <tr>
+  <td><%= article.title %></td>
+  <td><%= article.description %></td>
+  <td><%= link_to "Show", article_path(article) %></td>
+  <td><%= link_to "Edit", edit_article_path(article) %></td>
+  <td><%= button_to "Delete", article_path(article), method: :delete, data: { turbo_confirm: "Are you sure you want to delete this article?" } %></td>
+</tr>
+<% end %>
+-------------------code----------------------
+
+- now in the edit page we want to add cancel button 
+-------------------code----------------------
+<p>
+  <%= link_to "Cancel and Return to The articles", articles_path %> 
+</p>
+-------------------code----------------------
+
+
+- finally in the homePage we add the Article List Link
+-------------------code----------------------
+<p>
+  <%= link_to "Article List", articles_path %> 
+</p>
+-------------------code----------------------
