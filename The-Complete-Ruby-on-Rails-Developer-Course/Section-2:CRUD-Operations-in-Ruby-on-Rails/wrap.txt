@@ -2085,3 +2085,175 @@ PS: in rails 7 and 8 we use "turbo_confirm" instead of "confirm"
   <%= link_to "Article List", articles_path %> 
 </p>
 -------------------code----------------------
+
+
+*** 13-DRY (Don't Repeat Yourself) code - refactoring and partials ***
+we will refactor the code using DRY principle
+
+******************************************************************************************************
+In Rails, "DRY" stands for "Don't Repeat Yourself." It is a software development principle aimed at reducing the repetition of code patterns and promoting the reuse of code. The main idea is that every piece of knowledge or logic should have a single, unambiguous representation within a system.
+Key Aspects of DRY in Rails:
+1. Helpers: 
+Rails provides helper methods that can be used in views to encapsulate common functionality, reducing duplication in view templates.
+
+2. Partial Views: 
+Instead of repeating the same HTML code in multiple views, you can create partials (e.g., _form.html.erb) and render them wherever needed.
+
+3. Concerns: 
+In models and controllers, you can use concerns to share common functionality across multiple classes without repeating code.
+
+4. Routes: 
+You can define common routes using resources, which automatically generates RESTful routes for your controllers, reducing the need to define each route manually.
+
+5.Validations and Callbacks:
+Instead of repeating validation logic in multiple models, you can define shared validations in a parent class or module.
+
+By adhering to the DRY principle, you can make your Rails application more maintainable, easier to read, and less prone to bugs, as changes need to be made in only one place rather than in multiple locations.
+******************************************************************************************************
+
+
+- we routes folder we already remove the only keyword on order to apply Dry principle
+
+- now in controller we will apply Dry principle
+1- first we have this line of code we use it in multi places
+it`s already used in [show, edit, update, destroy] actions
+-------------------code----------------------
+@article = Article.find(params[:id])
+-------------------code----------------------
+
+- so we will save this code inside a method and we call that method
+first we will add "private" keyword
+
+- In Rails, as in Ruby, the private keyword is used to define the visibility of methods within a class. 
+When a method is declared as private, it can only be called within the context of the instance of the class itself. 
+This means that private methods cannot be called with an explicit receiver, not even with self.
+
+in other word the the method are existing inside the private only can be called inside in the article controllers
+
+now we call the method set_article
+-------------------code----------------------
+def set_article
+  @article = Article.find(params[:id])
+end 
+-------------------code----------------------
+
+- then we remove the same code from other actions
+
+
+- next instead of calling set_article in multi places 
+we use the before_action helper 
+-------------------code----------------------
+before_action :set_article, only: [:show, :edit, :update, :destroy]
+-------------------code----------------------
+
+In Rails, the before_action helper is a callback method that allows you to run specific code before certain controller actions are executed. 
+This is particularly useful for tasks that need to be performed before an action, 
+such as authentication, setting up instance variables, or checking permissions. 
+
+in other word it run a specific code before run the code inside the action 
+so it runs the set_article before something else
+
+- next we will apply the DRY principle for this code cause we use it multi times 
+-------------------code----------------------
+params.require(:article).permit(:title, :description)
+-------------------code----------------------
+
+- so we create another method in our case we will called article_params
+-------------------code----------------------
+def article_params
+  params.require(:article).permit(:title, :description)
+end
+-------------------code----------------------
+
+- next we call the method instead of calling the long code 
+-------------------code----------------------
+@article = Article.new(article_params)
+-------------------code----------------------
+
+- now we test our code if it`s works fine
+
+- next our views files 
+
+- in our new.html.erb and edit.html.erb we have similar code which is the form 
+and that not best practice cause not applied to the DRY principle
+here we use what we called partial 
+
+In Rails, a partial is a reusable view template that allows you to extract and encapsulate a portion of your view code. 
+Partials help you adhere to the DRY (Don't Repeat Yourself) principle by allowing you to avoid duplicating code across different views. 
+They are particularly useful for rendering shared components, such as forms, lists, or any other repeated HTML structure.
+
+Naming Convention: 
+Partials are typically named with a leading underscore (e.g., _form.html.erb), which indicates that they are not standalone views.
+
+- before that in our application.html.erb we but flash 
+and later if want to style it that will make our application.html.erb so big 
+so is better to grab the flash code and add in another file (partial)
+-------------------code----------------------
+<body>
+  <% flash.each do |name, msg| %>
+    <%= msg %>
+  <% end %>
+  <%= yield %>
+</body>
+-------------------code----------------------
+
+- first we create partial /layouts/_messages.html.erb 
+and move the flash code to inside it 
+-------------------code----------------------
+<% flash.each do |name, msg| %>
+  <%= msg %>
+<% end %>
+-------------------code----------------------
+
+- then we render the code using the render keyword and the 
+location of that partial name without using - 
+-------------------code----------------------
+<%= render "layouts/messages" %>
+-------------------code----------------------
+
+- now we test our code
+
+- next we do the same thing to our form in views 
+we create articles/_form.html.erb 
+-------------------code----------------------
+<% if @article.errors.any? %>
+  <h2>The following errors prevented the article from being saved</h2>
+  <ul>
+    <% @article.errors.full_messages.each do |msg| %>
+      <li><%= msg %></li>
+    <% end %>
+  </ul>
+<% end %>
+
+<%= form_with model: @article, local: true do |form| %>
+  <div>
+    <%= form.label :title %>
+    <br/>
+    <%= form.text_field :title %>
+    
+  </div>
+  <br/>
+  <div>
+    <%= form.label :description %>
+    <br/>
+    <%= form.text_field :description %>
+  </div>
+  <br/>
+  <%= form.submit %>
+<% end %>
+<p>
+  <%= link_to "Cancel and Return to The articles", articles_path %> 
+</p>
+-------------------code----------------------
+
+- we remove the form code from edit and new 
+then we add render to form in edit and new view files
+-------------------code----------------------
+<%= render "form" %>
+-------------------code----------------------
+
+
+PS: in layouts folder we need to specific the full path to the partial
+bu in other folder we don`t need to do that
+
+now we applied the DRY principle to our code 
