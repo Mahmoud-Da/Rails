@@ -1,22 +1,5 @@
 <h1>Edit a new Article</h1>
-<%= form_with model: @article do |form| %>
-  <div>
-    <%= form.label :title %> <br/>
-    <%= form.text_field :title %>
-  </div>
-  <br/>
-  <div>
-    <%= form.label :description %><br/>
-    <%= form.text_field :description %>
-  </div>
-  <br/>
-  <div>
-    <%= form.label :publisher %><br/>
-    <%= form.text_field :publisher %>
-  </div>
-  <br/>
-  <%= form.submit %>
-<% end %>
+<%= render "form" %>
 <p>
   <td><%= button_to "Delete", article_path(@article), method: :delete, data: {turbo_confirm: "Are You Sure?"}  %></td>
   <%= link_to "Back To Articles", articles_path%>
