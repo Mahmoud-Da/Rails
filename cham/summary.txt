@@ -46,3 +46,10 @@ a.save!
 b = Article.new(title: "3番目の記事", description: "3番目の本文")
 b.save!
 
+
+
+- DRY (Don`t Repeat Yourself)
+同じコード繰り返せないこと
+
+
+- Partial == component 
