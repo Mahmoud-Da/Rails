@@ -4,6 +4,8 @@ The fundamentals of Rails
 
 - To avoid the nested git repository:
 
+  ### first method:
+
   1. Navigate to the Parent Repository:
 
   ```bash
@@ -14,6 +16,20 @@ The fundamentals of Rails
 
   ```bash
   rm -rf path/to/nested/repo/.git
+  ```
+
+  ### second method:
+
+  1. Navigate to the Nested Repository:
+
+  ```bash
+  cd  path/to/nested/repo/
+  ```
+
+  2. Remove the Nested Repository:
+
+  ```bash
+  rm -rf .git
   ```
 
 - The error message you're encountering indicates that the installation of the `racc` gem failed. Follow these steps to resolve the issue:
