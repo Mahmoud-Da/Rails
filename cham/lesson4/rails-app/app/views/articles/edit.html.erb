@@ -1,0 +1,4 @@
+<h1>Edit a New Article</h1>
+<%= render "form" %>
+<p><%= link_to "Cancel and Back to Articles", articles_path %></p>
+<p><%= button_to "Delete", article_path(@article), method: :delete, data: { turbo_confirm: "Are You Sure!" } %></p>
