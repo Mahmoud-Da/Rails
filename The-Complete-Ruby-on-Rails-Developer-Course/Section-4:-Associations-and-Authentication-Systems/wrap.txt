@@ -436,3 +436,60 @@ in index.html we add Author
 <p><strong>Description: </strong><%= @article.description %></p>
 <p><strong>User: </strong><%= @article.user.username %></p>
 -------------------code----------------------
+
+
+*** 6-Alter object state before_save ***
+we will see how to use the before save method and cover how we can change an object's
+state right before it saves to the database.
+
+Right now, if you look at the email field, it can have random capitalized letters in it.
+But for email addresses we want to save all to lowercase before saving to the database.
+
+- we can check that in the rails console
+and we can see it created
+-------------------code----------------------
+> User.create(username: "Mike",email: "miKesP@example.com" )
+ TRANSACTION (0.0ms)  BEGIN immediate TRANSACTION /*application='RailsApp'*/
+  User Exists? (0.5ms)  SELECT 1 AS one FROM "users" WHERE "users"."username" = 'Mike' LIMIT 1 /*application='RailsApp'*/
+  User Exists? (0.0ms)  SELECT 1 AS one FROM "users" WHERE "users"."email" = 'miKesP@example.com' LIMIT 1 /*application='RailsApp'*/
+  User Create (0.1ms)  INSERT INTO "users" ("username", "email", "created_at", "updated_at") VALUES ('Mike', 'miKesP@example.com', '2025-01-02 13:00:06.561071', '2025-01-02 13:00:06.561071') RETURNING "id" /*application='RailsApp'*/
+  TRANSACTION (0.1ms)  COMMIT TRANSACTION /*application='RailsApp'*/
+=>
+#<User:0x00000001075a39c8
+ id: 2,
+ username: "Mike",
+ email: "[FILTERED]",
+ created_at: "2025-01-02 13:00:06.561071000 +0000",
+ updated_at: "2025-01-02 13:00:06.561071000 +0000">
+-------------------code----------------------
+
+- we can turn each email to lowercase before it save to the database 
+-------------------code----------------------
+before_save { self.email = email.downcase }
+-------------------code----------------------
+
+
+- this "self" is referencing each object of the user class, so when it comes to the email field for any
+of these objects before saving it to the database, it runs the Downcase method on that field and then
+saves it.
+-------------------code----------------------
+class User < ApplicationRecord
+  VALID_EMAIL_REGEX = /\A[\w+\-.]+@[a-z\d\-.]+\.[a-z]+\z/i
+  has_many :articles
+  
+  before_save { self.email = email.downcase }
+  validates :username, presence: true, uniqueness: true, length: { in: 3..25 }
+  validates :email, presence: true, uniqueness: true, length: { maximum: 150 }, format: { with: VALID_EMAIL_REGEX,
+    message: "only allow email pattern" }
+end
+-------------------code----------------------
+
+- now we try it again 
+-------------------code----------------------
+> User.create(username: "Mike3",email: "miKessP@example.com" )
+
+> User.last.email
+  User Load (0.3ms)  SELECT "users".* FROM "users" ORDER BY "users"."id" DESC LIMIT 1 /*application='RailsApp'*/
+=> "mikessp@example.com"
+-------------------code----------------------
+
