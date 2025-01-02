@@ -205,7 +205,8 @@ The ruby regular expression used to match the format of valid email addresses is
 
 - we can go to the rails guide and go to Guide Index and select "Active Record Validations"
 https://guides.rubyonrails.org/active_record_validations.html
-- and ad the validations 
+- and add the validations 
+same as using length: { minimum: 3, maximum: 25}, but using "in" the newest approach
 -------------------code----------------------
 validates :username, presence: true, uniqueness: true, length: { in: 3..25 }
 validates :email, presence: true, uniqueness: true, length: { maximum: 150 }, format: { with: /\A[\w+\-.]+@[a-z\d\-.]+\.[a-z]+\z/i,
@@ -254,4 +255,149 @@ PS: In the context of the regular expression w've provided:
 The "i" at the end of the regex pattern is a flag that stands for "case insensitive." 
 This means that the regex will match email addresses regardless of whether the letters are uppercase or lowercase.
 For example, both example@domain.com and Example@Domain.Com would be considered valid matches against this regex.
+
+
+
+*** 4-One to many association ***
+as we said before to track the article which belongs to users we should add foreign key to the articles table 
+
+- so first we create migration file using this command 
+-------------------code----------------------
+rails g migration add_user_id_to_articles
+-------------------code----------------------
+
+- bigint VS integer
+******************************************************************************************************
+- int (Integer):
+Size: 4 bytes
+Range: -2,147,483,648 to 2,147,483,647
+Use Case: Suitable for most applications where values do not exceed the integer range.
+- bigint (Big Integer):
+Size: 8 bytes
+Range: -9,223,372,036,854,775,808 to 9,223,372,036,854,775,807
+Use Case: Ideal for applications with large datasets or when expecting a high number of records, such as user IDs.
+In your migration, using bigint for user_id is appropriate if you anticipate a large number of users.
+******************************************************************************************************
+
+
+- we add the user_id 
+-------------------code----------------------
+def change
+  add_column :articles, :user_id, :bigint
+end
+-------------------code----------------------
+
+- we run the migration
+-------------------code----------------------
+rails db:migrate
+-------------------code----------------------
+
+- next we add the associations 
+in the User model  we add the has_many
+-------------------code----------------------
+class User < ApplicationRecord
+  VALID_EMAIL_REGEX = /\A[\w+\-.]+@[a-z\d\-.]+\.[a-z]+\z/i
+  has_many :articles
+
+  validates :username, presence: true, uniqueness: true, length: { in: 3..25 }
+  validates :email, presence: true, uniqueness: true, length: { maximum: 150 }, format: { with: VALID_EMAIL_REGEX,
+    message: "only allow email pattern" }
+end
+-------------------code----------------------
+
+
+and in the user model we add belongs_to user
+PS: when we use belongs_to is single so we add "user" not "users" 
+-------------------code----------------------
+class Article < ApplicationRecord
+  belongs_to :user
+  
+  validates :title, presence: true, length: { in: 6..100 }
+  validates :description, presence: true, length: { in: 10..300 }
+end
+-------------------code----------------------
+
+- now we test our relations 
+-------------------code----------------------
+> Article.first.update(user_id: 1)
+> article = Article.first
+> article.user
+  User Load (0.3ms)  SELECT "users".* FROM "users" WHERE "users"."id" = 1 LIMIT 1 /*application='RailsApp'*/
+=>
+#<User:0x000000010a9398a0
+ id: 1,
+ username: "lili",
+ email: "[FILTERED]",
+ created_at: "2025-01-02 08:29:04.497277000 +0000",
+ updated_at: "2025-01-02 08:29:04.497277000 +0000">
+-------------------code----------------------
+
+- now we test it on our screen 
+we can`t created article why?
+we debug our create action we want to stop the code before saving the article
+-------------------code----------------------
+def create 
+    @article = Article.new(article_params)
+    debugger
+    if @article.save
+      flash[:notice] = "Article was created successfully"
+      redirect_to @article
+    else 
+      flash[:alert] = "Article created failed"
+      render :new
+    end
+  end
+-------------------code----------------------
+
+- now we create article and press save 
+-------------------code----------------------
+Articles_controller.rb
+    16|   def edit
+    17|   end
+    18|
+    19|   def create
+    20|     @article = Article.new(article_params)
+=>  21|     debugger
+    22|     if @article.save
+    23|       flash[:notice] = "Article was created successfully"
+    24|       redirect_to @article
+    25|     else
+=>#0	ArticlesController#create at ~/moody/Rails/The-Complete-Ruby-on-Rails-Developer-Course/Section-4:-Associations-and-Authentication-Systems/rails-app/app/controllers/articles_controller.rb:21
+  #1	ActionController::BasicImplicitRender#send_action(method="create", args=[]) at ~/.rbenv/versions/3.2.2/lib/ruby/gems/3.2.0/gems/actionpack-8.0.1/lib/action_controller/metal/basic_implicit_render.rb:8
+-------------------code----------------------
+
+- we check @article and see if it valid 
+-------------------code----------------------
+(ruby) @article.valid?
+false
+(ruby) @article.errors.full_messages
+["User must exist"]
+-------------------code----------------------
+
+- later after setting up the Authentication we will let only the logged in user 
+to create an article
+but for now we will set all the article to the first users 
+PS: if our db is empty of users we will not be able to create any user 
+-------------------code----------------------
+def create 
+  @article = Article.new(article_params)
+  @article.user = User.first
+  if @article.save
+    flash[:notice] = "Article was created successfully"
+    redirect_to @article
+  else 
+    flash[:alert] = "Article created failed"
+    render :new
+  end
+end
+-------------------code----------------------
+
+- now we retest our creating article function and we can see it works properly 
+
+- now we need to update the other Article users_id for User.first by using the update_all method
+-------------------code----------------------
+> Article.update_all(user_id: 1)
+  Article Update All (2.9ms)  UPDATE "articles" SET "user_id" = 1 /*application='RailsApp'*/
+=> 32
+-------------------code----------------------
 
