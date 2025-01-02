@@ -1,0 +1,122 @@
+*** 1- Introduction to section 6: users, associations, ERD and more ***
+In this section, we'll work with another resource in our application users and learn about associations.
+
+- normally database will take this Type of structure where we will have multi tables
+-------------------code----------------------
+Database
++---------+---------+
+| table 1 | table 2 |
+|---------|---------|
+|   Row   |   Row   |
+|   Row   |   Row   |
+|   Row   |   Row   |
++---------+---------+
+| table 3 | table 4 |
+|---------|---------|
+|   Row   |   Row   |
+|   Row   |   Row   |
+|   Row   |   Row   |
+-------------------code----------------------
+
+
+- Right now we only have the articles table, and in this section we're going to introduce users.
+So we'll have a separate users table to go with our articles table and the users table will look like
+this.
+-------------------code----------------------
+users 
++----+----------+----------------+----------+
+| id | username  | email          | password |
++----+----------+----------------+----------+
+| 1  |          |                |          |
+| 2  |          |                |          |
+| 3  |          |                |          |
+| 4  |          |                |          |
++----+----------+----------------+----------+
+-------------------code----------------------
+
+- Now the association will form between users and articles is that users will create articles, so we'll
+need to track which user created which article.
+
+That way we have a creator reference for articles and how would we track this?
+- We'll do so by introducing a user ID field in the articles table.
+In this field, we'll store the user ID of the user who created each article.
+So each row, which signifies each article, will have the user ID column filled in.
+
+-------------------code----------------------
+users
++----+------+----------------+----------+
+| id | name | email          | password |
++----+------+----------------+----------+
+| 1  |      |                |          |
+| 2  |      |                |          |
+| 3  |      |                |          |
+| 4  |      |                |          |
++----+------+----------------+----------+
+
+articles
++----+-------+-------------+----------+--------+
+| id | title | description | user_id  |
++----+-------+-------------+----------+--------+
+| 1  |       |             |          |
+| 2  |       |             |          |
+| 3  |       |             |          |
+| 4  |       |             |          |
++----+-------+-------------+----------+--------+
+-------------------code----------------------
+
+- example Here we can see that Articles one and two have the user ID column filled in with the number two.
+From this we can infer that the user with ID of two created the first and second articles.
+-------------------code----------------------
+users
++----+------+----------------+----------+
+| id | name | email          | password |
++----+------+----------------+----------+
+| 1  |      |                |          |
+| 2  |      |                |          |
+| 3  |      |                |          |
+| 4  |      |                |          |
++----+------+----------------+----------+
+
+articles
++----+-------+-------------+----------+--------+
+| id | title | description | user_id  |
++----+-------+-------------+----------+--------+
+| 1  |       |             |     2    |
+| 2  |       |             |     2    |
+| 3  |       |             |     1    |
+| 4  |       |             |     3    |
++----+-------+-------------+----------+--------+
+-------------------code----------------------
+
+
+- So when you look at the articles table, this column, this user ID column is what is known as the "foreign key"
+This tracks the IDs of the users, which happen to be the primary key of the users table.
+So the ID column in the users table is known as a primary key.
+
+
+- and this association between users and articles is called a one to many association.
+Since one user can create many articles 
+in other word each user can then create many articles.
+
+But each article, on the other hand, will only have one creator.
+Thus, the one to many, with one being on the user side and many on the articles side.
+You can visualize this relationship by using what's called an entity relationship diagram or ERD with
+
+-------------------code----------------------
++----------------+          +----------------+
+|     users      |          |    articles     |
++----------------+          +----------------+
+| id     int     |          | id     int      |
+| username string |          | title  string   |
+| email   string  |          | description text |
+| password string |          | user_id int     |
++----------------+          +----------------+
+          1 |                          * |
+            |----------------------------|
+-------------------code----------------------
+
+PS: we can use "*" or "n" for the many relationship
+
+
+we can check any association by looking to rails guide 
+ 
