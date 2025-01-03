@@ -493,3 +493,227 @@ end
 => "mikessp@example.com"
 -------------------code----------------------
 
+
+*** 7- Add secure password ***
+form this lesson we will built authentication from scratch we will use gem called "device"
+PS: from rails 8 the authentication will be available within it without using third library 
+
+
+- first we go to the gems.org 
+-------------------code----------------------
+https://rubygems.org/
+-------------------code----------------------
+
+- search for "device" and we add the gem to our Gemfile
+PS: when downloading a gem we should only set the version of that gem 
+-------------------code----------------------
+gem 'devise', '~> 4.9', '>= 4.9.4'
+-------------------code----------------------
+
+- and we add comment 
+-------------------code----------------------
+# Authentication
+gem 'devise', '~> 4.9', '>= 4.9.4'
+-------------------code----------------------
+
+- now we have a gem which commented called "bcrypt"
+we uncommented
+-------------------code----------------------
+# Use Active Model has_secure_password [https://guides.rubyonrails.org/active_model_basics.html#securepassword]
+gem "bcrypt", "~> 3.1.7"
+-------------------code----------------------
+
+- And this is the gem that provides all the security and hashing features that we're going to need.
+So how does saving passwords for users actually work and how does it authenticate?
+
+- Let's say I have a users table like this and I have a user with username of monsieur and email of some
+email. Now this user needs to add a password to their account so they can sign up for the application.
+Let's say they choose the password. => "password123"
+-------------------code----------------------
+users 
++----+----------+----------------+----------+
+| id | username  | email          | password |
++----+----------+----------------+----------+
+| 1  | mashrur  | mash@ex..      | password123 |
+| 2  |          |                |          |
+| 3  |          |                |          |
+| 4  |          |                |          |
++----+----------+----------------+----------+
+-------------------code----------------------
+
+What Bcrypt is going to do is it's going to hash this password and save a string for ex:
+-------------------code----------------------
+JPeq6FCbu6ALfYr00Fe
+-------------------code----------------------
+
+this is what's known as a "hashed password", and it's a one way hash. which means 
+Basically, there's no way to convert this back to "password123"
+
+- How "hashing bit" and "salt" work? 
+general idea is if your database is compromised, let's say a hacker gets access to all this
+data, they have no way of knowing what your user's username and password or email and password combinations
+are so they won't be able to use it to hack into other accounts that the user might have.
+So that's the advantage of having a hashed password.
+
+
+But it's not just enough to have just a simple hash using a hashing algorithm.
+hashing algorithms are math and the algorithms and how they work are known. So if the hacker knew what algorithm was being used in a particular authentication system, then you
+could have a password such as "password123" put through that hashing algorithm and it
+would always give you the same hash so the hacker could try a table of thousands or maybe millions of known words and their hashed versions and look for a match.
+And this type of reversal of cryptographic hash functions using such a table is known as a "rainbow attack".
+ex:
+-------------------code----------------------
+password123  →  hashing algorithm  →  MtjV3V5v0LW0
+                                      JPeq6FCbu6AL
+                                      fYr00Fe
+
+password      →  hashing algorithm  →  Y2SoBecnR7L/
+                                      Ou33Q7W4rEz
+                                      vS2/FeFi
+
+hello123      →  hashing algorithm  →  66vd8pbp.Gwx
+                                      4oDYMoHYltkP
+                                      dEIMOS6
+-------------------code----------------------
+
+
+_ So what's the solution to make this type of encryption one way?
+the solution is what we called "salt"
+salt: is a random piece of text that's added to each password before hashing it.
+
+we will see that using Bcrypt so we install the bundle
+-------------------code----------------------
+bundle install
+-------------------code----------------------
+
+- then we check our Gemfile.lock to see if it installed
+
+
+- to use Bcrypt we need to add has_secure_password to our User model
+-------------------code----------------------
+class User < ApplicationRecord
+  VALID_EMAIL_REGEX = /\A[\w+\-.]+@[a-z\d\-.]+\.[a-z]+\z/i
+  has_many :articles
+  
+  before_save { self.email = email.downcase }
+  validates :username, presence: true, uniqueness: true, length: { in: 3..25 }
+  validates :email, presence: true, uniqueness: true, length: { maximum: 150 }, format: { with: VALID_EMAIL_REGEX,
+    message: "only allow email pattern" }
+
+  has_secure_password
+end
+-------------------code----------------------
+
+
+- now we add the password field 
+-------------------code----------------------
+rails g migration add_password_digest_to_users
+-------------------code----------------------
+
+- we called "password_digest" to the User table
+-------------------code----------------------
+class AddPasswordDigestToUsers < ActiveRecord::Migration[8.0]
+  def change
+    add_column :users, :password_digest, :string
+  end
+end
+-------------------code----------------------
+
+- we migrate the changes
+-------------------code----------------------
+rails db:migrate
+-------------------code----------------------
+
+- now we can test Bcrypt in rails console
+-------------------code----------------------
+> BCrypt::Password.create("password")
+=> "$2a$12$96zNwE5bsABseZbupdpy3OLKrve4dFaDDopXXPPbgllFIp/b6fiO6"
+-------------------code----------------------
+
+- now we had hashed password
+but what if we do it again 
+-------------------code----------------------
+> BCrypt::Password.create("password")
+=> "$2a$12$96zNwE5bsABseZbupdpy3OLKrve4dFaDDopXXPPbgllFIp/b6fiO6"
+
+> BCrypt::Password.create("password")
+=> "$2a$12$haEjiyYy2.ryk9eh4Bl2MOIOmZ2UfEpsi/LF2qMT3SbnqV3xbQQ3O"
+-------------------code----------------------
+
+- we got a different password And this is happening because of "salt" or that piece of text that was added using a random combination
+of things When I was creating this and added to the password before it was hashed and Bcrypt has the
+mechanism in place to read that piece or that salt piece of text when converting a text that I give
+back to the hash.
+
+- now we can see that in action we can take that value using "_"
+-------------------code----------------------
+> BCrypt::Password.create("password")
+=> "$2a$12$OwJ.MX87VGtHgobPk5mFpeGfDiIUOUqGE//C/6gnZ89SeT.4x.0he"
+
+> password = _
+=> "$2a$12$OwJ.MX87VGtHgobPk5mFpeGfDiIUOUqGE//C/6gnZ89SeT.4x.0he"
+-------------------code----------------------
+
+- now we can see the salt part
+-------------------code----------------------
+> password.salt
+=> "$2a$12$OwJ.MX87VGtHgobPk5mFpe"
+-------------------code----------------------
+
+- now let`s test it in our database
+-------------------code----------------------
+> user = User.first
+  User Load (0.3ms)  SELECT "users".* FROM "users" ORDER BY "users"."id" ASC LIMIT 1 /*application='RailsApp'*/
+=>
+#<User:0x00000001078a7098
+...
+
+> user
+=>
+#<User:0x00000001078a7098
+ id: 1,
+ username: "Lili",
+ email: "[FILTERED]",
+ created_at: "2025-01-02 12:43:15.139987000 +0000",
+ updated_at: "2025-01-02 12:43:15.139987000 +0000",
+ password_digest: nil>
+
+ > user.password = "password123"
+=> "password123"
+rails-app(dev)> user.save!
+  TRANSACTION (0.3ms)  BEGIN immediate TRANSACTION /*application='RailsApp'*/
+  User Exists? (0.2ms)  SELECT 1 AS one FROM "users" WHERE "users"."username" = 'Lili' AND "users"."id" != 1 LIMIT 1 /*application='RailsApp'*/
+  User Exists? (0.1ms)  SELECT 1 AS one FROM "users" WHERE "users"."email" = 'lili@bobo.com' AND "users"."id" != 1 LIMIT 1 /*application='RailsApp'*/
+  User Update (0.1ms)  UPDATE "users" SET "updated_at" = '2025-01-03 09:58:26.186183', "password_digest" = '$2a$12$6QwdKrZccrPQksVjXdjBSO73ssSn/G8RaQDHsNXIWJx/HnffcSSPi' WHERE "users"."id" = 1 /*application='RailsApp'*/
+  TRANSACTION (0.7ms)  COMMIT TRANSACTION /*application='RailsApp'*/
+=> true
+-------------------code----------------------
+
+- we can see it turned to hashed password in the TRANSACTION
+and we can check it and see that it changes
+-------------------code----------------------
+> user.password_digest
+=> "$2a$12$6QwdKrZccrPQksVjXdjBSO73ssSn/G8RaQDHsNXIWJx/HnffcSSPi"
+-------------------code----------------------
+
+- now for authenticate we can use the device method which called "authenticate" to check if the password is 
+authenticated 
+-------------------code----------------------
+rails-app(dev)> user.authenticate("password")
+=> false
+rails-app(dev)> user.authenticate("password123")
+=>
+#<User:0x00000001078a7098
+ id: 1,
+ username: "Lili",
+ email: "[FILTERED]",
+ created_at: "2025-01-02 12:43:15.139987000 +0000",
+ updated_at: "2025-01-03 09:58:26.186183000 +0000",
+ password_digest: "[FILTERED]">
+-------------------code----------------------
+
+- so what we will do when user try to login using either there name or email we will take 
+that name and find that user data in the db Then run the authenticate method on that data
+Passing in the password that they're entering to see if they are indeed using the right password.
+
+
