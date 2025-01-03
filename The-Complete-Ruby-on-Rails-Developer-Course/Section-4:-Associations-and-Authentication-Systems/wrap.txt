@@ -717,3 +717,112 @@ that name and find that user data in the db Then run the authenticate method on 
 Passing in the password that they're entering to see if they are indeed using the right password.
 
 
+*** 8- New user sign up form ***
+
+we will create sign up form the first 
+to access that we don`t want to access 
+
+we want to do is to create sign up route
+-------------------code----------------------
+http://localhost:3000/user/new
+-------------------code----------------------
+
+- instead we want to access it using sginup keyword 
+-------------------code----------------------
+http://localhost:3000/signup
+-------------------code----------------------
+
+- so the first thing to do is to add sigup route and set it to user with the new action 
+-------------------code----------------------
+get "signup", to: "user#new"
+-------------------code----------------------
+
+- now to check if the route is working  we access
+-------------------code----------------------
+http://localhost:3000/signup
+-------------------code----------------------
+
+we got this error so the routing is working fine
+-------------------code----------------------
+uninitialized constant UserController
+-------------------code----------------------
+
+- next we create the controller 
+-------------------code----------------------
+rails g controller users
+-------------------code----------------------
+
+- we add the new action 
+-------------------code----------------------
+class UsersController < ApplicationController
+  def new
+    @user = User.new
+  end
+end
+-------------------code----------------------
+
+- next we create the sign up form we do the same approach like the article
+we copy form partial and new file  file and change the values
+-------------------code----------------------
+<h1>Sign up User</h1>
+
+<%= render "form" %>
+-------------------code----------------------
+
+
+and in the form partial we change our labels
+-------------------code----------------------
+<% if @user.errors.any? %>
+  <h2>The following errors prevented the article from being saved</h2>
+  <ul>
+    <% @user.errors.full_messages.each do |msg| %>
+      <li><%= msg %></li>
+    <% end %>
+  </ul>
+<% end %>
+
+<%= form_with model: @user, local: true do |form| %>
+  <div>
+    <%= form.label :username %>
+    <br/>
+    <%= form.text_field :username %>
+    
+  </div>
+  <br/>
+  <div>
+    <%= form.label :email %>
+    <br/>
+    <%= form.text_field :email %>
+  </div>
+  <br/>
+  <div>
+    <%= form.label :password_digest %>
+    <br/>
+    <%= form.text_field :password_digest %>
+  </div>
+  <br/>
+  <%= form.submit %>
+<% end %>
+<p>
+  <%= link_to "Cancel and Return to The articles", articles_path %> 
+</p>
+-------------------code----------------------
+
+- now when we access the sginub route we got error 
+-------------------code----------------------
+undefined method `users_path' for #<ActionView::Base:0x000000000249f0>
+-------------------code----------------------
+
+what happing here is that is looking for the form submission path which we don`t 
+have defined in our route 
+on our routes we only have the sign up path and since the form deals with the user model, it will look for
+a users path defined to submit the post request to once the form is complete and submitted, but right
+now it can't find it. on other word we only have get method for the users in our routes and there is no
+post route so when the form is submitted rails doesn`t know where tp send the post request
+to fix that we add post route and we set it to create 
+-------------------code----------------------
+post "users", to: "users#create"
+-------------------code----------------------
+
+- now the form is working next we must create "create" action 
+
