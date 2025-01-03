@@ -1,0 +1,35 @@
+<%# TODO: change the errors to shard/error and add obj %>
+<% if @user.errors.any? %>
+  <h2>The following errors prevented the article from being saved</h2>
+  <ul>
+    <% @user.errors.full_messages.each do |msg| %>
+      <li><%= msg %></li>
+    <% end %>
+  </ul>
+<% end %>
+
+<%= form_with model: @user, local: true do |form| %>
+  <div>
+    <%= form.label :username %>
+    <br/>
+    <%= form.text_field :username %>
+    
+  </div>
+  <br/>
+  <div>
+    <%= form.label :email %>
+    <br/>
+    <%= form.text_field :email %>
+  </div>
+  <br/>
+  <div>
+    <%= form.label :password_digest %>
+    <br/>
+    <%= form.text_field :password_digest %>
+  </div>
+  <br/>
+  <%= form.submit %>
+<% end %>
+<p>
+  <%= link_to "Cancel and Return to The articles", articles_path %> 
+</p>
