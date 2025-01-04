@@ -826,3 +826,74 @@ post "users", to: "users#create"
 
 - now the form is working next we must create "create" action 
 
+*** 9-Create new users (back-end) ***
+
+now we want to add the "create" action
+
+- until this point if we clicked on the "Create User" form we got 
+-------------------code----------------------
+AbstractController::ActionNotFound (The action 'create' could not be found for UsersController):
+-------------------code----------------------
+
+- we add "create" action and debug the code
+-------------------code----------------------
+def create
+  debugger
+end
+-------------------code----------------------
+
+- and we fill the sign up form and click on the "Create User"
+and check the params 
+-------------------code----------------------
+(rdbg) params
+#<ActionController::Parameters {"authenticity_token"=>"BaJv8UAzxUz1-HLPKCI-k62tXZ63aNuXq1tGKvbz-s4xgrJAHTSmVPSQmOpr0zul7FMDDvhWdiBEH4Lbl8BY0Q", "user"=>{"username"=>"moody", "email"=>"moody@example.com", "password_digest"=>"test123"}, "commit"=>"Create User",
+ "controller"=>"users", "action"=>"create"} permitted: false>
+-------------------code----------------------
+
+
+- we can check what we pass by add params with top key which is user 
+-------------------code----------------------
+params[:user]
+#<ActionController::Parameters {
+  "username"=>"moody", "email"=>"moody@example.com", "password_digest"=>"test123"} permitted: false>
+-------------------code----------------------
+
+- now we see all the parameters username, email, password_digest
+now we need to permit it
+-------------------code----------------------  
+def create
+  @user = User.new(user_params)
+  if @user.save
+    flash[:notice] = "Welcome, you have successfully signed up"
+    redirect_to articles_path
+  else
+    render :new
+  end
+end
+
+private
+
+def user_params
+  params.require(:user).permit(:username, :email, :password_digest)
+end
+-------------------code----------------------
+
+- now to show the user name dynamically on the flash message
+-------------------code----------------------
+flash[:notice] = "Welcome #{@user.username}, you have successfully signed up"
+-------------------code----------------------
+
+
+PS: for shared/_errors.html.erb to show which class name has error 
+we use 
+-------------------code----------------------
+obj.class.name.downcase
+-------------------code----------------------
+
+
+- next we fix the button name of the form 
+-------------------code----------------------
+<%= form.submit "Sign up" %>
+-------------------code----------------------
+
+
