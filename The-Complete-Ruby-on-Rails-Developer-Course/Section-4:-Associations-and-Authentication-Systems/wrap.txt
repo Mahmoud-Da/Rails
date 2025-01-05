@@ -1114,3 +1114,132 @@ def user_params
 end
 -------------------code----------------------
 
+*** 11-Show user and profile image ***
+we will show the user profile and add profile image 
+
+- we create show action
+-------------------code----------------------
+def show 
+  @user = User.find(params[:id])
+end
+-------------------code----------------------
+
+- and same as the article cause we used the User.find in multi places 
+we save it different method and called with before action
+-------------------code----------------------
+def set_user
+  @user = User.find(params[:id])
+end
+-------------------code----------------------
+
+and we set the before action 
+-------------------code----------------------
+before_action :set_user, only: [:show, :edit, :update]
+-------------------code----------------------
+
+- now our controller look like this 
+-------------------code----------------------
+class UsersController < ApplicationController
+  before_action :set_user, only: [:show, :edit, :update]
+
+  def new
+    @user = User.new
+  end
+
+  def show 
+  end
+
+  def edit
+  end
+
+  def update 
+    if @user.update(user_params)
+      flash[:notice] = "User was updated successfully"
+      redirect_to articles_path
+    else 
+      render :edit
+    end
+  end
+
+  def create
+    @user = User.new(user_params)
+    if @user.save
+      flash[:notice] = "Welcome #{@user.username}, you have successfully signed up"
+      redirect_to articles_path
+    else
+      render :new
+    end
+  end
+
+  private
+  def set_user
+    @user = User.find(params[:id])
+  end
+
+  def user_params
+    permitted = [:username, :email]
+    permitted << :password_digest if params[:password_digest].present?
+    params.require(:user).permit(permitted)
+  end
+end
+-------------------code----------------------
+
+- next we will create the show template similar to article but we will change the columns name
+-------------------code----------------------
+<h1>Profile Details</h1>
+<p><strong>Username: </strong><%= @user.username %></p>
+<p><strong>Email: </strong><%= @user.email %></p>
+-------------------code----------------------
+
+- next if we want to show the articles of that user on there profile Detail
+- in controller we grab all the articles 
+-------------------code----------------------
+def show 
+  @articles = @user.articles
+end
+-------------------code----------------------
+
+- next we can show the article titles of that user 
+-------------------code----------------------
+<% @articles.each do |article| %>
+  <p><%= article.title %></p>
+<% end %>
+-------------------code----------------------
+
+- now to refactor our code we add @articles to partial and called in articles/index.html.erb
+and users/show.html.erb
+
+we create articles/_articles.html.erb
+-------------------code----------------------
+<% @articles.each do |article| %>
+  <tr>
+    <td><%= article.title %></td>
+    <td><%= article.description %></td>
+    <td><%= article.user.username %></td>
+    <td><%= link_to "Show", article_path(article) %></td>
+    <td><%= link_to "Edit", edit_article_path(article) %></td>
+    <td><%= button_to "Delete", article_path(article), method: :delete, data: { turbo_confirm: "Are you sure you want to delete this article?" } %></td>
+  </tr>
+<% end %>
+-------------------code----------------------
+
+- now we render it in the index.html.erb
+-------------------code----------------------
+<tbody>
+  <%= render "articles" %>
+</tbody>
+-------------------code----------------------
+
+- and we add it to the users/show.html.erb
+Ps: when we use the partial of other file we set the full path
+-------------------code----------------------
+<h1>Profile Details</h1>
+<p><strong>Username: </strong><%= @user.username %></p>
+<p><strong>Email: </strong><%= @user.email %></p>
+<%= render "articles/articles" %>
+-------------------code----------------------
+
+- for the profile image i will not use Gravatar program so i will not add it 
+
+- PS: if we want to create method and called it in the view file 
+we use the helper/application_helper.rb file 
