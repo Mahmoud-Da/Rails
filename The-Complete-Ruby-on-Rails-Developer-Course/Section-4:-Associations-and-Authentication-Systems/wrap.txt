@@ -1243,3 +1243,64 @@ Ps: when we use the partial of other file we set the full path
 
 - PS: if we want to create method and called it in the view file 
 we use the helper/application_helper.rb file 
+
+*** 12-Add users index ***
+we will create the users index page 
+
+
+- we already have the routes so we start by create the index action
+-------------------code----------------------
+def index
+  @users = User.all
+end
+-------------------code----------------------
+
+- next we create the index.html.erb
+-------------------code----------------------
+<h1>Users list pages</h1>
+<table>
+  <thead>
+    <tr>
+      <th>Username</th>
+      <th>Email</th>
+      <th>Articles Number</th>
+      <th colspan="2" >Details</th>
+      <th>Joins</th>
+    </tr>
+  </thead>
+  <tbody>
+    <% @users.each do |user| %>
+      <tr>
+        <td><%= user.username %></td>
+        <td><%= user.email %></td>
+        <td><%= pluralize(user.articles.count, "article") %></td>
+        <td><%= link_to "Show Profile", user_path(user) %></td>
+        <td><%= link_to "Edit Profile", edit_user_path(user) %></td>
+        <td><%= "#{time_ago_in_words(user.created_at)} ago" %></td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
+-------------------code----------------------
+
+- PS: 
+1- for counting the article we use pluralize method 
+The pluralize method in Ruby on Rails is a helper method used to display a word in its plural form based on a given count. 
+It takes two arguments: the count and the singular form of the word. If the count is greater than one,
+ it returns the pluralized version of the word; otherwise, it returns the singular form.
+-------------------code----------------------
+> pluralize(1, "article")
+=> 1 article
+
+> pluralize(3, "article")
+=> 3 articles
+-------------------code----------------------
+
+2- time_ago_in_words 
+The time_ago_in_words method in Rails is used to display a human-readable string that represents the time elapsed since a given time. It is often used in views to show how long ago an event occurred, such as when a user joined or when an article was created.
+ex:
+-------------------code----------------------
+> "#{time_ago_in_words(user.created_at)} ago"
+=> 3 days ago
+-------------------code----------------------
+
