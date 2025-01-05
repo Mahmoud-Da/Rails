@@ -1103,4 +1103,14 @@ column
 http://localhost:3000/users/1/edit
 -------------------code----------------------
 
-- it will works without adding a password (not working)
+- we got error cause we pass nil password 
+to fix that we need to avoid permitting the "password_digest" if it empty
+so we fix the user params 
+-------------------code----------------------
+def user_params
+  permitted = [:username, :email]
+  permitted << :password_digest if params[:password_digest].present?
+  params.require(:user).permit(permitted)
+end
+-------------------code----------------------
+
