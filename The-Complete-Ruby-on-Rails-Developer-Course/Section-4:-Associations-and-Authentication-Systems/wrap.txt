@@ -798,7 +798,7 @@ and in the form partial we change our labels
   <div>
     <%= form.label :password_digest %>
     <br/>
-    <%= form.text_field :password_digest %>
+    <%= form.password_field :password_digest %>
   </div>
   <br/>
   <%= form.submit %>
@@ -896,4 +896,211 @@ obj.class.name.downcase
 <%= form.submit "Sign up" %>
 -------------------code----------------------
 
+*** 10-Edit users ***
+we will make the user to be able to edit there profile using the browser
 
+- now we add the users resources without new cause we already use it with sign up 
+and in resources we already have create so we remove the post 
+-------------------code----------------------
+post "users", to: "users#create"
+-------------------code----------------------
+
+- and add the resource without new action
+-------------------code----------------------
+resources :users, expect: [:new]
+-------------------code----------------------
+
+- now we will check the user edit routes to do that we use pip with routes 
+-------------------code----------------------
+rails routes --expanded | grep edit
+-------------------code----------------------
+
+- we got all the routes with edit 
+-------------------code----------------------
+$ rails routes --expanded | grep edit
+Prefix            | edit_article
+URI               | /articles/:id/edit(.:format)
+Controller#Action | articles#edit
+Prefix            | edit_user
+URI               | /users/:id/edit(.:format)
+Controller#Action | users#edit {:expect=>[:new]}
+-------------------code----------------------
+
+PS: before we created users without passwords 
+so we pick a user for test with password  
+the empty line is nil
+-------------------code----------------------
+> User.all.each do |u|
+  *   puts u.password_digest
+> end
+  User Load (0.3ms)  SELECT "users".* FROM "users" /*application='RailsApp'*/
+$2a$12$6QwdKrZccrPQksVjXdjBSO73ssSn/G8RaQDHsNXIWJx/HnffcSSPi
+
+
+test123
+test123
+test123
+
+[#<User:0x000000010acf93a0
+  id: 1,
+  username: "Lili",
+  email: "[FILTERED]",
+  created_at: "2025-01-02 12:43:15.139987000 +0000",
+  updated_at: "2025-01-03 09:58:26.186183000 +0000",
+  password_digest: "[FILTERED]">,
+ #<User:0x000000010acf9260
+  id: 2,
+  username: "Mike",
+  email: "[FILTERED]",
+  created_at: "2025-01-02 13:00:06.561071000 +0000",
+  updated_at: "2025-01-02 13:00:06.561071000 +0000",
+  password_digest: nil>,
+ #<User:0x000000010acf9120
+  id: 3,
+  username: "Mike3",
+  email: "[FILTERED]",
+  created_at: "2025-01-02 13:04:24.101605000 +0000",
+  updated_at: "2025-01-02 13:04:24.101605000 +0000",
+  password_digest: nil>,
+ #<User:0x000000010acf8fe0
+  id: 4,
+  username: "moody",
+  email: "[FILTERED]",
+  created_at: "2025-01-04 07:32:54.412449000 +0000",
+  updated_at: "2025-01-04 07:32:54.412449000 +0000",
+  password_digest: "[FILTERED]">,
+ #<User:0x000000010acf8ea0
+  id: 5,
+  username: "moody2",
+  email: "[FILTERED]",
+  created_at: "2025-01-04 07:33:32.684527000 +0000",
+  updated_at: "2025-01-04 07:33:32.684527000 +0000",
+  password_digest: "[FILTERED]">,
+ #<User:0x000000010acf89a0
+  id: 6,
+  username: "moody3",
+  email: "[FILTERED]",
+  created_at: "2025-01-04 07:35:11.568630000 +0000",
+  updated_at: "2025-01-04 07:35:11.568630000 +0000",
+  password_digest: "[FILTERED]">]
+-------------------code----------------------
+
+- we will use user without password_digest for example id: 3
+-------------------code----------------------
+http://localhost:3000/users/3/edit
+-------------------code----------------------
+
+- we got error so we build the edit action
+-------------------code----------------------
+The action 'edit' could not be found for UsersController
+-------------------code----------------------
+
+- edit action will be similar to article edit action 
+we will find that user based on the id params 
+-------------------code----------------------
+def edit
+  @user = User.find(params[:id])
+end
+-------------------code----------------------
+
+- we got different error so next we create the edit template 
+-------------------code----------------------
+UsersController#edit is missing a template for request formats: text/html
+-------------------code----------------------
+
+- the edit template will be similar to the user with just change the header name 
+-------------------code----------------------
+<h1>Edit User</h1>
+
+<%= render "form" %>
+-------------------code----------------------
+
+
+- now we can see the submission button for the form is called "sign up"
+so we need to change it to do that we can check if the current user is a new record
+using the "new_record?" method
+-------------------code----------------------
+<%= form.submit(@user.new_record? ? "Sign up" : "Update account")%>
+-------------------code----------------------
+
+
+- now we test if the name of the button is working 
+
+
+- next we try to change the user name and press update account we got 
+-------------------code----------------------
+AbstractController::ActionNotFound (The action 'update' could not be found for UsersController):
+-------------------code----------------------
+
+- so we define the update action 
+-------------------code----------------------
+def update 
+  @user = User.find(params[:id])
+  if @user.update(user_params)
+    flash[:notice] = "User was updated successfully"
+    redirect_to articles_path
+  else 
+    render :edit
+  end
+end
+-------------------code----------------------
+
+- we couldn`t update we use debugger to see the problem 
+-------------------code----------------------
+def update 
+  @user = User.find(params[:id])
+  debugger
+  if @user.update(user_params)
+    flash[:notice] = "User was updated successfully"
+    redirect_to articles_path
+  else 
+    render :edit
+  end
+end
+-------------------code----------------------
+
+- we try to update then we check the error 
+-------------------code----------------------
+  User Load (0.1ms)  SELECT "users".* FROM "users" WHERE "users"."id" = 3 LIMIT 1 /*action='update',application='RailsApp',controller='users'*/
+  ↳ app/controllers/users_controller.rb:11:in `update'
+[7, 16] in ~/moody/Rails/The-Complete-Ruby-on-Rails-Developer-Course/Section-4:-Associations-and-Authentication-Systems/rails-app/app/controllers/users_controller.rb
+     7|     @user = User.find(params[:id])
+     8|   end
+     9|
+    10|   def update
+    11|     @user = User.find(params[:id])
+=>  12|     debugger
+    13|     if @user.update(user_params)
+    14|       flash[:notice] = "User was updated successfully"
+    15|       redirect_to articles_path
+    16|     else
+=>#0	UsersController#update at ~/moody/Rails/The-Complete-Ruby-on-Rails-Developer-Course/Section-4:-Associations-and-Authentication-Systems/rails-app/app/controllers/users_controller.rb:12
+  #1	ActionController::BasicImplicitRender#send_action(method="update", args=[]) at ~/.rbenv/versions/3.2.2/lib/ruby/gems/3.2.0/gems/actionpack-8.0.1/lib/action_controller/metal/basic_implicit_render.rb:8
+  # and 79 frames (use `bt' command for all frames)
+(ruby) @user.update(user_params)
+  TRANSACTION (0.1ms)  BEGIN immediate TRANSACTION /*action='update',application='RailsApp',controller='users'*/
+  ↳ (rdbg)//Users/mahmouddabbbagh/moody/Rails/The-Complete-Ruby-on-Rails-Developer-Course/Section-4:-Associations-and-Authentication-Systems/rails-app/app/controllers/users_controller.rb:1:in `update'
+  User Exists? (5.6ms)  SELECT 1 AS one FROM "users" WHERE "users"."username" = 'Mike23' AND "users"."id" != 3 LIMIT 1 /*action='update',application='RailsApp',controller='users'*/
+  ↳ (rdbg)//Users/mahmouddabbbagh/moody/Rails/The-Complete-Ruby-on-Rails-Developer-Course/Section-4:-Associations-and-Authentication-Systems/rails-app/app/controllers/users_controller.rb:1:in `update'
+  User Exists? (0.1ms)  SELECT 1 AS one FROM "users" WHERE "users"."email" = 'mikessp@example.com' AND "users"."id" != 3 LIMIT 1 /*action='update',application='RailsApp',controller='users'*/
+  ↳ (rdbg)//Users/mahmouddabbbagh/moody/Rails/The-Complete-Ruby-on-Rails-Developer-Course/Section-4:-Associations-and-Authentication-Systems/rails-app/app/controllers/users_controller.rb:1:in `update'
+  TRANSACTION (0.1ms)  ROLLBACK TRANSACTION /*action='update',application='RailsApp',controller='users'*/
+  ↳ (rdbg)//Users/mahmouddabbbagh/moody/Rails/The-Complete-Ruby-on-Rails-Developer-Course/Section-4:-Associations-and-Authentication-Systems/rails-app/app/controllers/users_controller.rb:1:in `update'
+false
+(ruby) @user.errors.full_messages
+["Password can't be blank"]
+-------------------code----------------------
+
+- the error says "Password can't be blank" cause we created this user before add the password_digest
+column 
+
+- to solve that we add password and try to change the name
+
+- and it worked successfully
+
+- next we will try to update user with password for example 1
+-------------------code----------------------
+http://localhost:3000/users/1/edit
+-------------------code----------------------
+
+- it will works without adding a password (not working)

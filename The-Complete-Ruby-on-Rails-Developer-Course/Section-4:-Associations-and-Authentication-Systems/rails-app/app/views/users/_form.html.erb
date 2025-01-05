@@ -25,10 +25,10 @@
   <div>
     <%= form.label :password_digest %>
     <br/>
-    <%= form.text_field :password_digest %>
+    <%= form.password_field :password_digest %>
   </div>
   <br/>
-  <%= form.submit "Sign up" %>
+   <%= form.submit(@user.new_record? ? "Sign up" : "Update account")%>
 <% end %>
 <p>
   <%= link_to "Cancel and Return to The articles", articles_path %> 
