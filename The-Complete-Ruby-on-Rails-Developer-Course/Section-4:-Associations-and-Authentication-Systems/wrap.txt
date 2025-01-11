@@ -618,6 +618,40 @@ class AddPasswordDigestToUsers < ActiveRecord::Migration[8.0]
   end
 end
 -------------------code----------------------
+******************************************************************************************************
+why when we use bcrypt gem we need to name the column password_digest?
+The bcrypt gem is used in Ruby on Rails to securely hash passwords. When using bcrypt, 
+the convention is to name the column that stores the hashed password as password_digest. Here’s why:
+
+1.Convention over Configuration: Rails follows the principle of "convention over configuration," 
+which means that it has default behaviors that developers can rely on. By using password_digest, 
+Rails can automatically know how to handle password hashing and authentication without requiring additional configuration.
+
+2.Active Model Secure Password: The bcrypt gem integrates with Rails' has_secure_password method, which is part of Active Model. 
+This method looks for a column named password_digest to store the hashed password. 
+If you use a different name, you would need to override this behavior, which can lead to more complex code and potential errors.
+
+3. Security: The name password_digest clearly indicates that the column contains a hashed version of the password, 
+which is a good practice for code readability and security. It helps developers understand the purpose of the column at a glance.
+
+In summary, using password_digest is a convention that simplifies the implementation of secure password handling in Rails applications.
+
+- if we used another name expect password_digest it will not works ?
+the has_secure_password method will not work out of the box. This is because has_secure_password specifically looks for a column named password_digest to store the hashed password and to verify the password during authentication.
+1. Custom Column Name: You can specify a different column name by using the :column option in the has_secure_password method.
+For example, if you want to use hashed_password instead of password_digest, you would do the following:
+-------------------code----------------------
+class User < ApplicationRecord
+  has_secure_password :column => :hashed_password
+end
+-------------------code----------------------
+
+2.Manual Handling: If you choose to use a different column name without specifying it in has_secure_password, you would need to manually handle the password hashing and verification process,
+which can complicate your code and increase the risk of security vulnerabilities.
+
+In summary, while it is possible to use a different column name, it requires additional configuration and can lead to more complex code.
+Sticking with the convention of password_digest is recommended for simplicity and security.
+******************************************************************************************************
 
 - we migrate the changes
 -------------------code----------------------
