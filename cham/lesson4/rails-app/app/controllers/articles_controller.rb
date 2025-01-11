@@ -17,6 +17,7 @@ class ArticlesController < ApplicationController
 
   def create
     @article = Article.new(article_params)
+    # TODO: ログイン機能できる際に対応する
     @article.user = User.first
     if @article.save
       flash[:notice] = "Article created Successfully"
