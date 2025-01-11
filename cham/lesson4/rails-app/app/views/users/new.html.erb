@@ -1,0 +1,21 @@
+<h1>Sign Up</h1>
+<%= form_with model: @user, local: true do |form| %>
+  <div>
+    <%= form.label :username %>
+  </div>
+  <br/>
+  <div>
+    <%= form.text_field :username %>
+  </div>
+  <br/>
+  <div>
+    <%= form.label :email %>
+  </div>
+  <br/>
+  <div>
+    <%= form.text_field :email %>
+  </div>
+   <br/>
+  <%= form.submit %>
+<% end %>
+<p><%= link_to "Cancel and Back to Articles", articles_path %></p>
