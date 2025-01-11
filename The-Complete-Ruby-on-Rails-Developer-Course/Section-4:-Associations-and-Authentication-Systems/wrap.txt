@@ -1304,3 +1304,99 @@ ex:
 => 3 days ago
 -------------------code----------------------
 
+*** 13-Cleanup layout ***
+- first we will fix the redirection in the users controller
+before we didn`t have a show template for the users so after update
+we redirect_to the articles now we redirect_to user_path 
+-------------------code----------------------
+def update 
+    if @user.update(user_params)
+      flash[:notice] = "User was updated successfully"
+      redirect_to @user
+    else 
+      render :edit
+    end
+  end
+-------------------code----------------------
+
+- now we test our code 
+
+-then we do the same thing to our create action
+we check the index action Prefix
+-------------------code----------------------
+$ rails routes --expanded | grep user
+Controller#Action | users#new
+Prefix            | users
+URI               | /users(.:format)
+Controller#Action | users#index
+URI               | /users(.:format)
+Controller#Action | users#create
+Prefix            | edit_user
+URI               | /users/:id/edit(.:format)
+Controller#Action | users#edit
+Prefix            | user
+URI               | /users/:id(.:format)
+Controller#Action | users#show
+URI               | /users/:id(.:format)
+Controller#Action | users#update
+URI               | /users/:id(.:format)
+Controller#Action | users#update
+URI               | /users/:id(.:format)
+Controller#Action | users#destroy
+-------------------code----------------------
+
+- then we change the create action
+-------------------code----------------------
+def create
+  @user = User.new(user_params)
+  if @user.save
+    flash[:notice] = "Welcome #{@user.username}, you have successfully signed up"
+    redirect_to users_path
+  else
+    render :new
+  end
+end
+-------------------code----------------------
+
+- next we change the Users in article show template to go to that users 
+-------------------code----------------------
+<h1>Showing article details</h1>
+<p><strong>Title: </strong><%= @article.title %></p>
+<p><strong>Description: </strong><%= @article.description %></p>
+<p><strong>User: </strong><%= @article.user.username %></p>
+-------------------code----------------------
+
+- and user the link_to 
+-------------------code----------------------
+<p><strong>User: </strong><%= link_to @article.user.username, user_path(@article.user) %></p>
+-------------------code----------------------
+
+- and we do the same for the _articles partial
+-------------------code----------------------
+<% @articles.each do |article| %>
+  <tr>
+    <td><%= article.title %></td>
+    <td><%= article.description %></td>
+    <td><%= article.user.username %></td>
+    <td><%= link_to "Show", article_path(article) %></td>
+    <td><%= link_to "Edit", edit_article_path(article) %></td>
+    <td><%= button_to "Delete", article_path(article), method: :delete, data: { turbo_confirm: "Are you sure you want to delete this article?" } %></td>
+  </tr>
+<% end %>
+-------------------code----------------------
+
+
+- and we add link_to
+-------------------code----------------------
+<% @articles.each do |article| %>
+  <tr>
+    <td><%= article.title %></td>
+    <td><%= article.description %></td>
+    <td><%= link_to article.user.username, user_path(article.user) %></td>
+    <td><%= link_to "Show", article_path(article) %></td>
+    <td><%= link_to "Edit", edit_article_path(article) %></td>
+    <td><%= button_to "Delete", article_path(article), method: :delete, data: { turbo_confirm: "Are you sure you want to delete this article?" } %></td>
+  </tr>
+<% end %>
+-------------------code----------------------
+
