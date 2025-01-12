@@ -9,9 +9,15 @@
     </tr>
   </thead>
   <tbody>
+    <div class="flickr_pagination">
+     <%= will_paginate @articles, :container => false %>
+    </div>
     <%= render "articles" %>
   </tbody>
 </table>
 <p>
   <%= link_to "Create New Article", new_article_path %> 
 </p>
+<div class="flickr_pagination">
+  <%= will_paginate @articles, :container => false %>
+</div>

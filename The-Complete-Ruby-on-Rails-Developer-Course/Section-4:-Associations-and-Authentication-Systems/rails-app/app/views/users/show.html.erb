@@ -1,4 +1,10 @@
 <h1>Profile Details</h1>
 <p><strong>Username: </strong><%= @user.username %></p>
 <p><strong>Email: </strong><%= @user.email %></p>
+<div class="flickr_pagination">
+  <%= will_paginate @articles, :container => false %>
+</div>
 <%= render "articles/articles" %>
+<div class="flickr_pagination">
+  <%= will_paginate @articles, :container => false %>
+</div>
