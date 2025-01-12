@@ -13,5 +13,8 @@ class User < ApplicationRecord
   validates :email, presence: true, length: { maximum: 100 }, format: { with: EMAIL_VALID_REGEX,
     message: "pattern is not valid" }
 
+
+  before_save { self.email = email.downcase }
+
   has_secure_password
 end
