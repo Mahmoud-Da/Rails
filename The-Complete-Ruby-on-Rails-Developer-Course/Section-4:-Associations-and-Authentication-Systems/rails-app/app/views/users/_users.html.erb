@@ -1,0 +1,10 @@
+<% @users.each do |user| %>
+  <tr>
+    <td><%= user.username %></td>
+    <td><%= user.email %></td>
+    <td><%= pluralize(user.articles.count, "article") %></td>
+    <td><%= link_to "Show Profile", user_path(user) %></td>
+    <td><%= link_to "Edit Profile", edit_user_path(user) %></td>
+    <td><%= "#{time_ago_in_words(user.created_at)} ago" %></td>
+  </tr>
+<% end %>
