@@ -1,0 +1,26 @@
+<%= form_with model: @user, local: true do |form| %>
+  <div>
+    <%= form.label :username %>
+  </div>
+  <br/>
+  <div>
+    <%= form.text_field :username %>
+  </div>
+  <br/>
+  <div>
+    <%= form.label :email %>
+  </div>
+  <br/>
+  <div>
+    <%= form.text_field :email %>
+  </div>
+  <div>
+    <%= form.label :password %>
+  </div>
+  <br/>
+  <div>
+    <%= form.password_field :password_digest %>
+  </div>
+   <br/>
+  <%= form.submit(@user.new_record? ? "sign up" : "update account")  %>
+<% end %>

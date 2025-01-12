@@ -15,6 +15,6 @@ Rails.application.routes.draw do
   get 'about', to: 'pages#about'
   resources :articles
   
-  get "singup", to: 'users#new'
+  get "signup", to: 'users#new'
   resources :users, expect: [:new]
 end
