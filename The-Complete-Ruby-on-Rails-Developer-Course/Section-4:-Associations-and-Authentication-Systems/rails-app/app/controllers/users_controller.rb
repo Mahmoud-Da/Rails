@@ -42,7 +42,7 @@ class UsersController < ApplicationController
 
   def user_params
     permitted = [:username, :email]
-    permitted << :password_digest if params[:password_digest].present?
+    permitted << :password_digest if params[:user][:password_digest].present?
     params.require(:user).permit(permitted)
   end
 end
